@@ -1,0 +1,31 @@
+package Server;
+import javax.swing.*;
+import java.io.*;
+
+public class ServerFrame extends JFrame {
+	// Run Server Panel
+	private JPanel serverRunningPanel;
+	private JTextField txtPort;
+	private JLabel lblPort;
+	private JTextField txtIP;
+	private JLabel lblIP;
+	private JButton btnStart;
+	private JButton btnStop;
+	
+	// Server Info Panel
+	private JLabel lblUpTime;
+	private JLabel lblUptimeValue;
+	private JLabel lblStartTime;
+	private JLabel lblStartTimeValue;
+	private JLabel lblConnectedClient;
+	private JLabel lblNumbersConnectedClient;
+	
+	
+	
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+	}
+
+}
