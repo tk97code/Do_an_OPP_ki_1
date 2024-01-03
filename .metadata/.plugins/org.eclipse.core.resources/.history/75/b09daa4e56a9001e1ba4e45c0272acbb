@@ -1,0 +1,66 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+
+class SpacingListCellRenderer implements ListCellRenderer<Object> {
+    private int spacing;
+
+    public SpacingListCellRenderer(int spacing) {
+        this.spacing = spacing;
+    }
+
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JPanel panel = new JPanel();
+        JLabel label = new JLabel(value.toString());
+
+        // Tạo khoảng trống bằng cách thêm một Box.Filler
+        Component filler = Box.createRigidArea(new Dimension(0, spacing));
+
+        // Tạo layout và thêm các thành phần vào panel
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(label);
+        panel.add(filler);
+
+        // Tô màu nền khi được chọn
+        if (isSelected) {
+            panel.setBackground(list.getSelectionBackground());
+            label.setForeground(list.getSelectionForeground());
+        } else {
+            panel.setBackground(list.getBackground());
+            label.setForeground(list.getForeground());
+        }
+
+        // Đảm bảo rằng khoảng trống không bị chọn
+        filler.setBackground(list.getBackground());
+
+        return panel;
+    }
+}
+
+public class PanelInJListExample {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Spacing JList Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            // Danh sách các phần tử
+            String[] data = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"};
+
+            // Tạo JList và thiết lập Renderer
+            JList<String> jList = new JList<>(data);
+            jList.setCellRenderer(new SpacingListCellRenderer(10)); // Đặt khoảng trống là 10 pixels
+
+            // Đặt JList vào JScrollPane
+            JScrollPane scrollPane = new JScrollPane(jList);
+
+            // Thêm JScrollPane vào JFrame
+            frame.getContentPane().add(scrollPane);
+
+            frame.setSize(300, 200);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
+}

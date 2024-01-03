@@ -1,0 +1,59 @@
+package Test;
+import javax.swing.*;
+import java.awt.*;
+import javax.swing.border.EmptyBorder;
+
+class CustomPanelListCellRenderer implements ListCellRenderer<JPanel> {
+
+    private final int SPACING = 10;
+
+    @Override
+    public Component getListCellRendererComponent(JList<? extends JPanel> list, JPanel value, int index, boolean isSelected, boolean cellHasFocus) {
+        JPanel cell = value;
+//        cell.setBackground(Color.red);
+        cell.setBorder(new EmptyBorder(SPACING, SPACING, SPACING, SPACING));
+
+        if (isSelected) {
+            cell.setBackground(list.getSelectionBackground());
+            cell.setForeground(list.getSelectionForeground());
+        } else {
+            cell.setBackground(Color.red);
+            cell.setForeground(list.getForeground());
+        }
+
+        return cell;
+    }
+}
+
+public class SpacedJPanelListExample {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Spaced JPanel List Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            DefaultListModel<JPanel> model = new DefaultListModel<>();
+            for (int i = 0; i < 5; i++) {
+                JPanel panel = createCell("Item " + (i + 1));
+                model.addElement(panel);
+            }
+
+            JList<JPanel> list = new JList<>(model);
+            list.setCellRenderer(new CustomPanelListCellRenderer());
+
+            JScrollPane scrollPane = new JScrollPane(list);
+            frame.add(scrollPane);
+
+            frame.setSize(300, 200);
+            frame.setVisible(true);
+        });
+    }
+
+    private static JPanel createCell(String text) {
+        JPanel panel = new JPanel();
+        JLabel label = new JLabel(text);
+        panel.add(label);
+        panel.setBackground(Color.black);
+        panel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        return panel;
+    }
+}

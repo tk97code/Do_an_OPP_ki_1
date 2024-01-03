@@ -1,0 +1,39 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class SpacedCellRendererExample {
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            createAndShowGUI();
+        });
+    }
+
+    private static void createAndShowGUI() {
+        JFrame frame = new JFrame("Spaced Cell Renderer Example");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+
+        DefaultListModel<String> model = new DefaultListModel<>();
+        model.addElement("Item 1");
+        model.addElement("Item 2");
+        model.addElement("Item 3");
+
+        JList<String> list = new JList<>(model);
+        list.setCellRenderer(new SpacedCellRenderer());
+
+        frame.getContentPane().add(new JScrollPane(list));
+        frame.setVisible(true);
+    }
+
+    public static class SpacedCellRenderer extends DefaultListCellRenderer {
+        @Override
+        public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            Component renderer = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            renderer.setBorder(new EmptyBorder(2, 2, 2, 2)); // 2 is the spacing between cells
+            return renderer;
+        }
+    }
+}

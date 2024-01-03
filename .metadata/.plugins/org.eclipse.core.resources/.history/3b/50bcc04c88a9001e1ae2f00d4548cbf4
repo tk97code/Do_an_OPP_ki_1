@@ -1,0 +1,95 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+class SandParticle {
+    private int x;
+    private int y;
+    private int speed;
+
+    public SandParticle(int x, int y) {
+        this.x = x;
+        this.y = y;
+        this.speed = 5;
+    }
+
+    public void update() {
+        y += speed;
+        if (y > 400) { // Adjust the height to stop particles from falling off the screen
+            y = 0;
+        }
+    }
+
+    public void draw(Graphics g) {
+        g.setColor(Color.ORANGE);
+        g.fillRect(x, y, 5, 5); // Adjust the size of the particles
+    }
+}
+
+class FallingSandPanel extends JPanel {
+    private List<SandParticle> particles;
+    private Timer timer;
+
+    public FallingSandPanel() {
+        particles = new ArrayList<>();
+        initializeParticles();
+
+        timer = new Timer(30, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateParticles();
+                repaint();
+            }
+        });
+        timer.start();
+    }
+
+    private void initializeParticles() {
+        Random random = new Random();
+        for (int i = 0; i < 100; i++) {
+            int x = random.nextInt(getWidth());
+            int y = random.nextInt(getHeight());
+            particles.add(new SandParticle(x, y));
+        }
+    }
+
+    private void updateParticles() {
+        for (SandParticle particle : particles) {
+            particle.update();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        for (SandParticle particle : particles) {
+            particle.draw(g);
+        }
+    }
+}
+
+public class FallingSandSimulation extends JFrame {
+    public FallingSandSimulation() {
+        setTitle("Falling Sand Simulation");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        FallingSandPanel sandPanel = new FallingSandPanel();
+        add(sandPanel);
+
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new FallingSandSimulation();
+        });
+    }
+}

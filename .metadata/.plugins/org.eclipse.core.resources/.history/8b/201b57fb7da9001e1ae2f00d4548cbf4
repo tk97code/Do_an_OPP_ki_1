@@ -1,0 +1,72 @@
+package Client;
+
+import java.awt.Color;
+import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+
+import javax.swing.*;
+
+
+
+public class ClientFrame extends JFrame {
+
+////	/* ClientFrame info */
+//	private int fWidth = 1265; //+15
+//	private int fHeight = 940; //+40
+	
+	
+//	/* ClientFrame info */
+	private int fWidth = 1215 + 15; //+15
+	private int fHeight = 860 + 40; //+40
+	
+	
+	/* Get Screen Size */
+	private GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+	private int sWidth = gd.getDisplayMode().getWidth();
+	private int sHeight = gd.getDisplayMode().getHeight();
+	
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					ClientFrame frame = new ClientFrame() {
+						@Override
+						public void paintComponents(Graphics g) {
+//							super.paintComponent(g);
+			                Graphics2D g2d = (Graphics2D) g;
+			                applyAntialiasing(g2d);
+
+						}
+					};
+					frame.setVisible(true);
+				} catch(Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		
+	}
+
+	public ClientFrame() {
+		setTitle("Chat - Mé Lô");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setResizable(false);
+		setLayout(null);
+//		setBounds((sWidth-fWidth)/2, (sHeight-fHeight)/2, fWidth, fHeight);
+		setSize(fWidth, fHeight);
+		setLocationRelativeTo(null);
+
+		
+		JPanel test = new JPanel();
+		test.setBounds(340, 0, 1000, 1000);
+		test.setBackground(Color.white);
+		
+		add(test);
+		add(new MenuLeft());
+	}
+	
+}

@@ -1,0 +1,20 @@
+package Client;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class RightComponents extends JPanel {
+
+	public RightComponents() {
+		
+	}
+	
+	class ReceiverUserPanel extends JPanel {
+		
+	}
+	
+	class MessagePanel extends JPanel {
+		
+	}
+	
+}

@@ -1,0 +1,90 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class MessengerUI extends JFrame {
+
+    private DefaultListModel<String> messageListModel;
+    private JList<String> messageList;
+    private JTextArea messageTextArea;
+    private JTextField inputField;
+
+    public MessengerUI() {
+        setTitle("Messenger");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(600, 400);
+        setLocationRelativeTo(null);
+
+        messageListModel = new DefaultListModel<>();
+        messageList = new JList<>(messageListModel);
+        JScrollPane messageListScrollPane = new JScrollPane(messageList);
+
+        messageTextArea = new JTextArea();
+        messageTextArea.setEditable(false);
+        JScrollPane messageTextScrollPane = new JScrollPane(messageTextArea);
+
+        inputField = new JTextField();
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendMessage();
+            }
+        });
+
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.add(messageTextScrollPane, BorderLayout.CENTER);
+        rightPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, messageListScrollPane, rightPanel);
+        splitPane.setResizeWeight(0.2);
+
+        getContentPane().add(splitPane);
+
+        // Add some sample messages
+        addMessage("User 1", "Hello");
+        addMessage("User 2", "Hi there!");
+
+        messageList.addListSelectionListener(e -> displaySelectedMessage());
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+    }
+
+    private void sendMessage() {
+        String message = inputField.getText().trim();
+        if (!message.isEmpty()) {
+            addMessage("User 1", message); // Replace "User 1" with the sender's name
+            inputField.setText("");
+        }
+    }
+
+    private void addMessage(String sender, String message) {
+        String formattedMessage = String.format("[%s]: %s", sender, message);
+        messageListModel.addElement(formattedMessage);
+    }
+
+    private void displaySelectedMessage() {
+        int selectedIndex = messageList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            String selectedMessage = messageListModel.getElementAt(selectedIndex);
+            messageTextArea.setText(selectedMessage);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            MessengerUI messengerUI = new MessengerUI();
+            messengerUI.setVisible(true);
+        });
+    }
+}
+
+

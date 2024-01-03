@@ -1,0 +1,82 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class ChatPanel extends JFrame {
+
+    private JPanel messagePanel;
+    private JTextField messageField;
+
+    public ChatPanel() {
+        setTitle("Chat Panel");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(400, 300);
+        setLocationRelativeTo(null);
+
+        messagePanel = new JPanel();
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.Y_AXIS));
+
+        JScrollPane scrollPane = new JScrollPane(messagePanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        messageField = new JTextField();
+        JButton sendButton = new JButton("Send");
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                sendMessage();
+            }
+        });
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new BorderLayout());
+        inputPanel.add(messageField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        getContentPane().setLayout(new BorderLayout());
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        getContentPane().add(inputPanel, BorderLayout.SOUTH);
+    }
+
+    private void sendMessage() {
+        String messageText = messageField.getText();
+        if (!messageText.isEmpty()) {
+            addMessage("User 1", messageText); // Replace "User 1" with the sender's name
+            messageField.setText("");
+        }
+    }
+
+    private void addMessage(String sender, String message) {
+        JPanel messageContainer = new JPanel();
+        messageContainer.setLayout(new BorderLayout());
+        messageContainer.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        JLabel senderLabel = new JLabel(sender + ": ");
+        JTextArea messageArea = new JTextArea(message);
+        messageArea.setLineWrap(true);
+        messageArea.setWrapStyleWord(true);
+        messageArea.setEditable(false);
+
+        messageContainer.add(senderLabel, BorderLayout.WEST);
+        messageContainer.add(messageArea, BorderLayout.CENTER);
+
+        messagePanel.add(messageContainer);
+        messagePanel.revalidate();
+        messagePanel.repaint();
+
+        // Scroll to the bottom of the scroll pane
+        JScrollBar verticalScrollBar = ((JScrollPane) messagePanel.getParent()).getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            ChatPanel chatPanel = new ChatPanel();
+            chatPanel.setVisible(true);
+        });
+    }
+}
+

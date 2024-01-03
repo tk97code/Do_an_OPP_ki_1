@@ -1,0 +1,29 @@
+package ColorPalette;
+
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ColorPalette {
+    private Map<String, Color> colorMap;
+
+    // Constructor
+    public ColorPalette() {
+        colorMap = new HashMap<>();
+        initializeColors();
+    }
+
+    // Khởi tạo danh sách màu sắc và đặt chúng vào bản đồ
+    private void initializeColors() {
+        colorMap.put("PrimaryWhite", new Color(248, 250, 255));
+        colorMap.put("Green", Color.GREEN);
+        colorMap.put("Blue", Color.BLUE);
+        colorMap.put("Yellow", Color.YELLOW);
+        // Thêm các màu khác nếu cần
+    }
+
+    // Phương thức để truy xuất màu theo tên
+    public Color getColor(String colorName) {
+        return colorMap.get(colorName);
+    }
+}

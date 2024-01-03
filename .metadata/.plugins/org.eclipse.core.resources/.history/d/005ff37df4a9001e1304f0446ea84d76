@@ -1,0 +1,132 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import TheSedativePackage.RoundedBorder;
+
+public class tett extends JLayeredPane {
+
+    private JLabel lblChatIcon;
+    private JLabel lblUsersIcon;
+    private JPanel selectionCircle;
+
+    private Color _primaryLightBlue = new Color(173, 216, 230);
+
+    public tett() {
+        setBounds(1200, 500, 155, 55);
+
+        // Use a JLayeredPane for better layering control
+        setLayout(null);
+
+        lblChatIcon = new JLabel();
+        lblChatIcon.setIcon(new ImageIcon("src\\Image\\chat_black.png")); // Replace with the actual path
+        lblChatIcon.setHorizontalAlignment(JLabel.CENTER);
+        add(lblChatIcon, JLayeredPane.PALETTE_LAYER);
+
+        lblUsersIcon = new JLabel();
+        lblUsersIcon.setIcon(new ImageIcon("path/to/usersIcon.png")); // Replace with the actual path
+        lblUsersIcon.setHorizontalAlignment(JLabel.CENTER);
+        add(lblUsersIcon, JLayeredPane.PALETTE_LAYER);
+
+        // Create a circle panel to act as the selection indicator
+        selectionCircle = new JPanel();
+        selectionCircle.setSize(20, 20);
+        selectionCircle.setBackground(Color.RED);
+        selectionCircle.setBorder(new RoundedBorder(_primaryLightBlue, 0, 100));
+        add(selectionCircle, JLayeredPane.PALETTE_LAYER);
+
+        // Initial position of the selection circle
+        moveSelectionCircle(lblChatIcon.getX(), lblChatIcon.getY());
+
+        // Add ActionListener to switch the selection
+        lblChatIcon.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				moveSelectionCircle(lblChatIcon.getX(), lblChatIcon.getY());
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+
+        lblUsersIcon.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				moveSelectionCircle(lblUsersIcon.getX(), lblUsersIcon.getY());
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+        });
+    }
+
+    // Method to move the selection circle to the specified coordinates
+    private void moveSelectionCircle(int x, int y) {
+        selectionCircle.setLocation(x + (lblChatIcon.getWidth() - selectionCircle.getWidth()) / 2,
+                y + lblChatIcon.getHeight() - selectionCircle.getHeight() / 2);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("TabBarPanel Example");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        tett tabBarPanel = new tett();
+        frame.add(tabBarPanel);
+
+        frame.setSize(300, 200);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}
+

@@ -1,0 +1,77 @@
+package Test;
+
+import javax.swing.*;
+import java.awt.*;
+
+class SpacedListCellRenderer implements ListCellRenderer<Panel> {
+    private int spacing;
+
+    public SpacedListCellRenderer(int spacing) {
+        this.spacing = spacing;
+    }
+
+    @Override
+    public Component getListCellRendererComponent(JList<? extends Panel> list, Panel value, int index, boolean isSelected, boolean cellHasFocus) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+
+        // Tạo khoảng trống giữa các phần tử bằng cách thêm Insets cho Panel
+        Insets insets = new Insets(spacing, 0, 0, 0);
+        panel.setBorder(BorderFactory.createEmptyBorder(insets.top, insets.left, insets.bottom, insets.right));
+
+        // Thêm Panel vào layout
+        panel.add(value, BorderLayout.CENTER);
+
+        // Tô màu nền của Panel dựa trên trạng thái của phần tử
+        if (isSelected) {
+            panel.setBackground(list.getSelectionBackground());
+            value.setBackground(list.getSelectionBackground());
+        } else {
+            panel.setBackground(list.getBackground());
+            value.setBackground(list.getBackground());
+        }
+
+        panel.setOpaque(true);
+
+        return panel;
+    }
+}
+
+public class PanelInJListExample {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Spaced JList Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            // Danh sách các phần tử
+            JPanel[] data = {
+                    createColoredPanel(Color.RED),
+                    createColoredPanel(Color.GREEN),
+                    createColoredPanel(Color.BLUE),
+                    createColoredPanel(Color.YELLOW),
+                    createColoredPanel(Color.ORANGE)
+            };
+
+            // Tạo JList và thiết lập Renderer
+            JList<Component> jList = new JList<>(data);
+            jList.setCellRenderer(new SpacedListCellRenderer(10)); // Đặt khoảng trống là 10 pixels
+
+            // Đặt JList vào JScrollPane
+            JScrollPane scrollPane = new JScrollPane(jList);
+
+            // Thêm JScrollPane vào JFrame
+            frame.getContentPane().add(scrollPane);
+
+            frame.setSize(300, 200);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
+
+    private static JPanel createColoredPanel(Color color) {
+        JPanel panel = new JPanel();
+        panel.setBackground(color);
+        panel.setPreferredSize(new Dimension(50, 50));
+        return panel;
+    }
+}

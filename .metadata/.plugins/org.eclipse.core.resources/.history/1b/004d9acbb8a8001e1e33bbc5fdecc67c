@@ -1,0 +1,104 @@
+import javax.swing.*;
+
+import Client.ListClientComponent;
+
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class sss extends JFrame {
+
+    private JList<Component> list;
+    private int selectedCellIndex = -1;
+
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                TestListModel frame = new TestListModel();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private Component createSpacer() {
+        return Box.createRigidArea(new Dimension(0, 24));
+    }
+
+    public sss() {
+        setSize(1024, 900);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(null);
+
+        JPanel p = new JPanel();
+        p.setBounds(0, 0, 325, 760);
+        p.setLayout(new FlowLayout());
+        p.setBackground(new Color(248, 250, 255));
+        add(p);
+
+        JPanel p2 = new JPanel();
+        p2.setBounds(325, 0, 337, 760);
+        p2.setLayout(new BorderLayout());
+        p2.setBackground(new Color(248, 250, 255));
+        add(p2);
+
+        DefaultListModel<Component> model = new DefaultListModel<>();
+        for (int i = 0; i < 20; i++) {
+            model.addElement(createSpacer());
+            model.addElement(new ListClientComponent());
+        }
+
+        list = new JList<>(model);
+        list.setCellRenderer(new PanelListCellRenderer());
+        list.setBorder(BorderFactory.createEmptyBorder());
+        list.setBackground(new Color(248, 250, 255));
+        list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setPreferredSize(new Dimension(290, 760));
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        JScrollBar customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
+        customScrollBar.setModel(scrollPane.getVerticalScrollBar().getModel());
+        customScrollBar.setPreferredSize(new Dimension(10, 760));
+        customScrollBar.setForeground(new Color(48, 144, 216));
+        customScrollBar.setBackground(new Color(248, 250, 255));
+        customScrollBar.setUI(new ModernScrollBarUI());
+
+        list.addMouseWheelListener(e -> customScrollBar.setValue(customScrollBar.getValue() + e.getWheelRotation() * 50));
+
+        // Add MouseListener to track cell selection
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int index = list.locationToIndex(e.getPoint());
+                if (index >= 0) {
+                    selectedCellIndex = index;
+                }
+            }
+        });
+
+        p.add(scrollPane);
+        p2.add(customScrollBar, BorderLayout.WEST);
+
+        // Add listener to the spacer panel for handling clicks
+        JPanel spacerPanel = (JPanel) list.getModel().getElementAt(0);
+        spacerPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (selectedCellIndex >= 0) {
+                    // Add a new cell after the selected cell
+                    model.add(selectedCellIndex + 1, new ListClientComponent());
+                    // Reset the selection to the newly added cell
+                    list.setSelectedIndex(selectedCellIndex + 1);
+                    // Update the selected cell index
+                    selectedCellIndex = selectedCellIndex + 1;
+                }
+            }
+        });
+    }
+}

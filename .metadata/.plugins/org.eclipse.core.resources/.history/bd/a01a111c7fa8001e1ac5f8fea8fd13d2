@@ -1,0 +1,34 @@
+package Test;
+import javax.swing.*;
+import java.awt.*;
+
+public class CustomCellRendererList extends JFrame {
+    public CustomCellRendererList() {
+        setLayout(new BorderLayout());
+
+        DefaultListModel<Object> model = new DefaultListModel<>();
+        for (int i = 0; i < 20; i++) {
+            model.addElement("Item " + i);
+        }
+
+        JList<Object> list = new JList<>(model);
+        list.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBorder(BorderFactory.createEmptyBorder(0, 0, 24, 0));
+                panel.add(super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus), BorderLayout.CENTER);
+                return panel;
+            }
+        });
+
+        add(new JScrollPane(list), BorderLayout.CENTER);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setLocationRelativeTo(null);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new CustomCellRendererList().setVisible(true));
+    }
+}

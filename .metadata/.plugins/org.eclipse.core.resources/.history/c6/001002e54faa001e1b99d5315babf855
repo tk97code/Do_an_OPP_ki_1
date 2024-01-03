@@ -1,0 +1,26 @@
+package Client;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class RightComponents extends JPanel {
+
+	public RightComponents() {
+		setBounds(ALLBITS, ABORT, 885, 860);
+		
+		
+	}
+	
+	class ReceiverUserPanel extends JPanel {
+		
+	}
+	
+	class MessagePanel extends JPanel {
+		
+	}
+	
+	class InputMessagePanel extends JPanel {
+		
+	}
+	
+}
