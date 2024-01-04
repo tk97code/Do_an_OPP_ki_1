@@ -165,7 +165,6 @@ public class ServerFrame extends JFrame {
 		txtIP.setBackground(_primaryPanelWhite);
 		txtIP.setBorder(null);
 		txtIP.setFont(_Popins20);
-		txtIP.setText("192.168.1.1");
 		try {
 			txtIP.setText(Inet4Address.getLocalHost().getHostAddress());
 		} catch (UnknownHostException e) {

@@ -77,7 +77,7 @@ public class TestListModel extends JFrame {
 		p2.setBackground(new Color(248, 250, 255));
 		add(p2);
 		
-		add(new tett());
+//		add(new tett());
 		
 		DefaultListModel<AccountComponent> model = new DefaultListModel<>();
 		for (int i = 0; i < 20; i++) {

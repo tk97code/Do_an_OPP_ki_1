@@ -35,6 +35,8 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
 import TheSedativePackage.*;
@@ -42,6 +44,8 @@ import TheSedativePackage.*;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
 import org.jdesktop.animation.timing.interpolation.PropertySetter;
+import org.jdesktop.swingx.border.DropShadowBorder;
+import org.jdesktop.swingx.graphics.ShadowRenderer;
 
 
 
@@ -184,32 +188,32 @@ public class LeftComponents extends JPanel {
 			
 			g2.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 			
-			RoundRectangle2D.Double bubble = new RoundRectangle2D.Double(0, 0, 155, 60, 60, 100);
+			RoundRectangle2D.Double bubble = new RoundRectangle2D.Double(0, 0, 135, 50, 50, 100);
 			
 			Area area = new Area(bubble);
 			
-            Rectangle rect = new Rectangle(0,0,155, 60);
+            Rectangle rect = new Rectangle(0,0,155, 50);
             Area borderRegion = new Area(rect);
             borderRegion.subtract(area);
             g2.setClip(borderRegion);
             g2.setColor(new Color(0, 0, 0,0));
-            g2.fillRect(0, 0, 155, 60);
+            g2.fillRect(0, 0, 135, 50);
             g2.setClip(null);
             
             g2.setClip(bubble);
-            g2.setColor(_primaryLightBlue);
-            g2.fillRect(0, 0, 155, 60);
+            g2.setColor(new Color(174, 202, 250));
+            g2.fillRect(0, 0, 135, 50);
             g2.setClip(null);
-            
-            g2.setColor(new Color(248, 250, 255, 100));
-            g2.setStroke(new BasicStroke(3));
-            g2.draw(area);
+            	
+//            g2.setColor(new Color(112, 156, 230));
+//            g2.setStroke(new BasicStroke(1));
+//            g2.draw(area);
             
 //            g2.drawImage(url, 25, 15, this);
 		}
 		
 		public TabBarPanel() {
-			setBounds(91, 790, 155, 60);
+			setBounds(91, 795, 135, 50);
 			setLayout(null);
 			
 			addMouseListener(new MouseAdapter() {
@@ -223,12 +227,12 @@ public class LeftComponents extends JPanel {
 			
 			lblChatIcon = new JLabel();
 			lblChatIcon.setIcon(chatIcon);
-			lblChatIcon.setBounds(25, 0, 60, 60);
+			lblChatIcon.setBounds(25, 0-10/2, 60, 60);
 			add(lblChatIcon, JLayeredPane.PALETTE_LAYER);
 			
 			lblUsersIcon = new JLabel();
 			lblUsersIcon.setIcon(usersIcon);
-			lblUsersIcon.setBounds(110, 0, 60, 60);
+			lblUsersIcon.setBounds(90, 0-10/2, 60, 60);
 			add(lblUsersIcon, JLayeredPane.PALETTE_LAYER);
 			
 			selectPanel = new JPanel() {
@@ -237,8 +241,8 @@ public class LeftComponents extends JPanel {
 	                super.paintComponent(g);
 	                Graphics2D g2 = (Graphics2D) g;
 	                int diameter = Math.min(getWidth(), getHeight());
-	                Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, diameter, diameter);
-	                g2.setColor(new Color(91, 150, 247)); // Set the color of the circle
+	                Ellipse2D.Double circle = new Ellipse2D.Double(0+2.5f, 0, diameter-5, diameter-5);
+	                g2.setColor(new Color(91, 150, 247)); 
 	                g2.fill(circle);
 	            }
 	        };

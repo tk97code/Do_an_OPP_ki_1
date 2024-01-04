@@ -10,7 +10,7 @@ public class MessengerUI extends JFrame {
     private DefaultListModel<Message> messageListModel;
     private JList<Message> messageList;
     private JTextArea messageTextArea;
-    private JTextField inputField;
+    private JTextArea inputField;
 
     public MessengerUI() {
         setTitle("Messenger");
@@ -27,7 +27,10 @@ public class MessengerUI extends JFrame {
         messageTextArea.setEditable(false);
         JScrollPane messageTextScrollPane = new JScrollPane(messageTextArea);
 
-        inputField = new JTextField();
+        inputField = new JTextArea();
+        inputField.setMaximumSize(new Dimension(200, 200));
+        inputField.setLineWrap(true);
+        inputField.setWrapStyleWord(true);
         JButton send1Button = new JButton("Send 1");
         send1Button.addActionListener(new ActionListener() {
             @Override
