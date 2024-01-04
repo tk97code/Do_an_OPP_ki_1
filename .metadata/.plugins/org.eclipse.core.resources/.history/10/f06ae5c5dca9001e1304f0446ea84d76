@@ -1,7 +1,0 @@
-package Client;
-
-import javax.swing.*;
-
-public class RightComponents extends JPanel {
-
-}
