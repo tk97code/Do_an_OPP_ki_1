@@ -26,7 +26,7 @@ public class ServerFrame extends JFrame {
 	private JPanel serverInfoPanel;
 	
 	private JPanel portPanel;
-	private JTextField txtPort;
+	private MyTextField txtPort;
 	private JLabel lblPort;
 	
 	private JPanel ipPanel;
@@ -161,6 +161,7 @@ public class ServerFrame extends JFrame {
 		ipPanel.add(lblIP);
 		
 		txtIP = new MyTextField();
+		txtIP.setType(false);
 		txtIP.setBounds(24, lblIP.getX() + lblIP.getHeight() + 8, 274, 36);
 		txtIP.setBackground(_primaryPanelWhite);
 		txtIP.setBorder(null);
@@ -190,6 +191,7 @@ public class ServerFrame extends JFrame {
 		portPanel.add(lblPort);
 		
 		txtPort = new MyTextField();
+		txtPort.setType(false);
 		txtPort.setBounds(24, lblPort.getX() + lblPort.getHeight() + 8, 274, 36);
 		txtPort.setBackground(_primaryPanelWhite);
 		txtPort.setBorder(null);

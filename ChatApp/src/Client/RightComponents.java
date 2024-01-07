@@ -116,7 +116,7 @@ public class RightComponents extends JPanel {
 			        	inputMessage.setText("Write a message...");
 			        }
 			    }
-			    });
+			});
 			inputMessage.setOpaque(false);
 			inputMessage.setBounds(20, 17, 765, 45);
 			inputMessage.setBackground(new Color(234, 242, 254));

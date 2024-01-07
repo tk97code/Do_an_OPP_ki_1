@@ -30,23 +30,24 @@ public class ClientFrame extends JFrame {
 	private int sHeight = gd.getDisplayMode().getHeight();
 	
 	
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					ClientFrame frame = new ClientFrame();
-					frame.setVisible(true);
-				} catch(Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					ClientFrame frame = new ClientFrame();
+//					frame.setVisible(true);
+//				} catch(Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		
+//	}
 
 	public ClientFrame() {
-		setTitle("Chat - Mé Lô");
+		setTitle("Welkin Chat - Message");
+		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLayout(null);

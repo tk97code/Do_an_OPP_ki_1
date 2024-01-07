@@ -10,17 +10,22 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
+
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-public class MyTextField extends JTextField {
+public class MyTextField extends JPasswordField {
 
     private float location;
     private boolean mouseOver = false;
+    private boolean isFocused = false;
     private Color lineColor = new Color(3, 155, 216);
+    private boolean isPass = false;
     
     public MyTextField() {
 //        setBorder(new EmptyBorder(20, 3, 10, 3));
@@ -38,6 +43,31 @@ public class MyTextField extends JTextField {
                 repaint();
             }
         });
+        
+        addFocusListener(new FocusListener() {
+			
+			@Override
+			public void focusLost(FocusEvent e) {
+				isFocused = false;
+				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				isFocused = true;
+				
+			}
+		});
+    }
+    
+    public void setType(boolean isPass) {
+    	this.isPass = isPass;
+    	
+    	if (!isPass) {
+        	setEchoChar((char)0);
+        } else {
+        	setEchoChar('*');
+        }
     }
 
     @Override
@@ -48,15 +78,22 @@ public class MyTextField extends JTextField {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
         int width = getWidth();
         int height = getHeight();
-        if (mouseOver) {
+        if (mouseOver || isFocused) {
             g2.setColor(lineColor);
+        } else if (!isFocused) { 
+        	g2.setColor(new Color(150, 150, 150));
         } else {
             g2.setColor(new Color(150, 150, 150));
         }
-        g2.fillRect(2, height - 1, width - 4, 1);
+        
+        g2.fillRect(2, height - 1, width - 4, 2);
 //        createHintText(g2);
         createLineStyle(g2);
         g2.dispose();
+    }
+    
+    public void setSelectionColor(Graphics2D g2) {
+    	g2.setColor(lineColor);
     }
 
     private void createLineStyle(Graphics2D g2) {
@@ -65,7 +102,7 @@ public class MyTextField extends JTextField {
             int height = getHeight();
             g2.setColor(lineColor);
             double size;
-            size = width * location;
+            size = width;
             double x = (width - size) / 2;
             g2.fillRect((int) (x + 2), height - 2, (int) size, 2);
         }
