@@ -25,6 +25,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,153 +40,19 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.RepaintManager;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import Client.ClientFrame;
-import TheSedativePackage.MyTextField;
+import Event.Event;
+import Event.EventLogin;
+import Event.EventMessage;
+import TheSedativePackage.*;
 import TheSedativePackage.RoundedBorder;
+import okhttp3.Call;
 
-class ModelColor {
-	private Color color;
-    private float position;
-	
-	 public Color getColor() {
-	        return color;
-	 }
-
-	 public void setColor(Color color) {
-		 this.color = color;
-	 }
-
-	 public float getPosition() {
-		 return position;
-	 }
-
-	 public void setPosition(float position) {
-		 this.position = position;
-	 }
-
-	 public ModelColor(Color color, float position) {
-		 this.color = color;
-		 this.position = position;
-	 }
-
-}
-
-class PanelGradient extends JPanel {
-
-    public PanelGradient() {
-        setOpaque(false);
-        colors = new ArrayList<>();
-    }
-    
-    private final List<ModelColor> colors;
-
-    public void addColor(ModelColor... color) {
-        for (ModelColor c : color) {
-            colors.add(c);
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        if (!colors.isEmpty()) {
-            int width = getWidth();
-            int height = getHeight();
-            Graphics2D g2 = (Graphics2D) g;
-            
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-	        
-            Color color[] = new Color[colors.size()];
-            float position[] = new float[colors.size()];
-            for (int i = 0; i < colors.size(); i++) {
-                color[i] = colors.get(i).getColor();
-                position[i] = colors.get(i).getPosition();
-            }
-            int sx = 0; //  as Start x
-            int sy = 0; //  as Start y
-            int ex = width; //  as End x
-            int ey = 0; //  as End y
-            LinearGradientPaint gradient = new LinearGradientPaint(sy, sx, ey, ex, position, color);
-            g2.setPaint(gradient);
-            g2.fillRect(0, 0, width, height);
-        }
-        super.paintComponent(g);
-    }
-}
-
-class LoginComponent extends JPanel {
-	private JLabel label;
-	private MyTextField input;
-	
-	private String textLabel;
-	private String placeHolder;
-	private String url;
-	private boolean isPass;
-	
-	private Font _poppins15 = new Font("Poppins Medium", Font.PLAIN, 15);
-	private Font _poppins17 = new Font("Poppins", Font.PLAIN, 17);
-	
-	LoginComponent(String textLabel, String placeHolder, String url, boolean isPass) {
-		this.textLabel = textLabel;
-		this.placeHolder = placeHolder;
-		this.url = url;
-		this.isPass = isPass;
-	}
-	
-	public void addComponets() {
-		setLayout(null);
-		setBackground(Color.white);
-		
-		label = new JLabel();
-		label.setText(this.textLabel);
-		label.setFont(_poppins15);
-		label.setForeground(new Color(153, 153, 153));
-		label.setBounds(0, 0, 220, 20);
-		add(label);
-		
-		input = new MyTextField() {
-			@Override
-			protected void paintComponent(Graphics g) {
-				// TODO Auto-generated method stub
-				super.paintComponent(g);
-				Graphics2D g2 = (Graphics2D) g;
-				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-				Image img = Toolkit.getDefaultToolkit().getImage(url);
-				g2.drawImage(img, 5, this.getHeight() / 2 - 10, this);
-			}
-		};
-		input.setBounds(0, 20, 490, 35);
-		input.setForeground(Color.black);
-		input.setFont(_poppins17);
-		input.setText(this.placeHolder);
-		input.setType(false);
-		input.setBorder(new EmptyBorder(0, 40, 0, 0));
-		input.addFocusListener(new FocusListener(){
-			
-		    @Override
-		    public void focusGained(FocusEvent e) {
-		        if (input.getText().equals(placeHolder)) {
-		        	input.setText("");
-		        	if (isPass) {
-		        		input.setType(true);
-		        	}
-		        }
-		    }
-		    @Override
-		    public void focusLost(FocusEvent e) {
-		        if (input.getText().isEmpty()) {
-		        	input.setText(placeHolder);
-		        	if (isPass) {
-		        		input.setType(false);
-		        	}
-		        }
-		    }
-		});
-		add(input);
-	}
-}
+import io.socket.client.*;
 
 public class LoginFrame extends JFrame {
 	
@@ -216,6 +87,7 @@ public class LoginFrame extends JFrame {
 			public void run() {
 				try {
 					LoginFrame frame = new LoginFrame();
+					LoginService.getInstance().startServer();
 					frame.setVisible(true);
 					frame.requestFocusInWindow(false);
 					frame.getContentPane().setBackground(Color.white);
@@ -229,11 +101,37 @@ public class LoginFrame extends JFrame {
 	
 	public LoginFrame() {
 		setTitle("Welkin Chat - Login");
+		this.requestFocusInWindow(false);
+		this.getContentPane().setBackground(Color.white);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(null);
 		setSize(1215, 790);
 		setResizable(false);
 		setLocationRelativeTo(null);
+		
+		Event.getInstance().addEventLogin(new EventLogin() {
+			@Override
+			public void login() {
+				// TODO Auto-generated method stub
+				System.out.println("test login");
+			}
+			
+			@Override
+			public void register(RegisterData data, EventMessage message) {
+				// TODO Auto-generated method stub
+				// Ack handle response from server
+				LoginService.getInstance().getClient().emit("register", data.toJsonObject(), new Ack() {
+					@Override
+					public void call(Object... res) {
+						// TODO Auto-generated method stub
+						if (res.length > 0) {
+							MessageData msg = new MessageData((boolean) res[0], res[1].toString());
+							message.callMessage(msg);
+						}
+					}
+				});
+			}
+		});
 		
 		designPanel = new PanelGradient();
 		designPanel.setLayout(null);
@@ -320,7 +218,7 @@ public class LoginFrame extends JFrame {
         lblNotify.setForeground(Color.black);
         lblNotify.setText("Already have account log in,");
 		lblNotify.setBounds(0, 395, 400, 30);
-		lblNotify.setFont(new Font("Poppins Regular", Font.PLAIN, 16));
+		lblNotify.setFont(new Font("SVN-Poppins", Font.PLAIN, 16));
         lblNotify.setFont(lblNotify.getFont().deriveFont(attributes));
         managerAuthPanel.add(lblNotify);
         
@@ -328,7 +226,7 @@ public class LoginFrame extends JFrame {
         lblAction.setForeground(new Color(0, 137, 237));
         lblAction.setText("here");
         lblAction.setBounds(275, 0, 50, 30);
-		lblAction.setFont(new Font("Poppins Regular", Font.PLAIN, 16));
+		lblAction.setFont(new Font("SVN-Poppins", Font.PLAIN, 16));
 		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 		lblAction.setFont(lblNotify.getFont().deriveFont(attributes));
 		lblNotify.add(lblAction);
@@ -344,10 +242,35 @@ public class LoginFrame extends JFrame {
 		lblButton.setBackground(Color.red);
 		lblButton.setText("Sign Up");
 		lblButton.setForeground(Color.white);
-		lblButton.setFont(new Font("Poppins Bold", Font.PLAIN, 17));
+		lblButton.setFont(new Font("SVN-Poppins Bold", Font.PLAIN, 17));
+		lblButton.setBorder(new EmptyBorder(5, 0, 0, 0));
 //		lblButton.setBounds(190, 15, 70, 25);
 		lblButton.setVerticalAlignment(JLabel.CENTER);
 		btnSubmit.add(lblButton);
+		
+		btnSubmit.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				String usernameInput = userName.getText();
+				String emailInput = email.getText();
+				String passInput = pass.getText();
+				
+				RegisterData data = new RegisterData(usernameInput, emailInput, passInput);
+				Event.getInstance().getEventLogin().register(data, new EventMessage() {
+					@Override
+					public void callMessage(MessageData message) {
+						// TODO Auto-generated method stub
+						if (!message.isAction()) {
+							System.out.println(message.getMessage());
+						} else {
+							System.out.println(message.getMessage());
+						}
+					}
+				});
+			}
+		});
 		
 		lblAction.addMouseListener(new MouseAdapter() {
 			@Override
@@ -377,10 +300,10 @@ public class LoginFrame extends JFrame {
 	}
 	
 	public void createLogInPanel() {
-		userName = new LoginComponent("Username", "Enter your user name", "src\\Image\\user.png", false);
-		userName.addComponets();
-		userName.setBounds(0, 0, 490, 65);
-		managerAuthPanel.add(userName);
+		email = new LoginComponent("Email", "Enter your email address", "src\\Image\\email.png", false);
+		email.addComponets();
+		email.setBounds(0, 0, 490, 65);
+		managerAuthPanel.add(email);
 		
 		pass = new LoginComponent("Password", "Enter your Password", "src\\Image\\password.png", true);
 		pass.addComponets();
@@ -394,7 +317,7 @@ public class LoginFrame extends JFrame {
         lblNotify.setForeground(Color.black);
         lblNotify.setText("Don't have account sign up,");
 		lblNotify.setBounds(0, 395, 400, 30);
-		lblNotify.setFont(new Font("Poppins Regular", Font.PLAIN, 16));
+		lblNotify.setFont(new Font("SVN-Poppins", Font.PLAIN, 16));
         lblNotify.setFont(lblNotify.getFont().deriveFont(attributes));
 		managerAuthPanel.add(lblNotify);
         
@@ -402,7 +325,7 @@ public class LoginFrame extends JFrame {
         lblAction.setForeground(new Color(0, 137, 237));
         lblAction.setText("here");
         lblAction.setBounds(270, 0, 50, 30);
-		lblAction.setFont(new Font("Poppins Regular", Font.PLAIN, 16));
+		lblAction.setFont(new Font("SVN-Poppins", Font.PLAIN, 16));
 		attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
 		lblAction.setFont(lblNotify.getFont().deriveFont(attributes));
 		lblNotify.add(lblAction);
@@ -416,8 +339,9 @@ public class LoginFrame extends JFrame {
 		
 		lblButton = new JLabel();
 		lblButton.setText("Log in");
+		lblButton.setBorder(new EmptyBorder(5, 0, 0, 0));
 		lblButton.setForeground(Color.white);
-		lblButton.setFont(new Font("Poppins Bold", Font.PLAIN, 17));
+		lblButton.setFont(new Font("SVN-Poppins Bold", Font.PLAIN, 17));
 //		lblButton.setBounds(190, 15, 70, 25);
 		lblButton.setVerticalAlignment(JLabel.CENTER);
 		btnSubmit.add(lblButton);
@@ -446,15 +370,21 @@ public class LoginFrame extends JFrame {
 				managerAuthPanel.revalidate();
 				managerAuthPanel.repaint();
 			}
-		});
+		}); 
 		
 		btnSubmit.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				dispose();
-				new ClientFrame();
+				SwingUtilities.invokeLater(new Runnable() {
+				    public void run() {
+				    	dispose();
+				        ClientFrame clientFrame = new ClientFrame();
+				        clientFrame.setVisible(true);
+				    }
+				});
 			}
+			
 		});
 	}
 }

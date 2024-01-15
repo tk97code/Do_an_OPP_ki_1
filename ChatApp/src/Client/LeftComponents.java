@@ -67,13 +67,13 @@ public class LeftComponents extends JPanel {
 		managerPanel.setBounds(0, 0, 340, 860);
 		managerPanel.setLayout(null);
 		add(managerPanel);
-
+		
 		managerPanel.add(new UserPanel(), JLayeredPane.DEFAULT_LAYER);
-		
 		managerPanel.add(new AccountPanel(), JLayeredPane.DEFAULT_LAYER);
-		
 		managerPanel.add(new TabBarPanel(), JLayeredPane.PALETTE_LAYER);
 	}
+		
+		
 	
 	class UserPanel extends JPanel {
 		private JLabel lblUserName;
@@ -143,6 +143,9 @@ public class LeftComponents extends JPanel {
 			showingPane.setPreferredSize(new Dimension(290, 760));
 			showingPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 			showingPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			
+			showingPane.getVerticalScrollBar().setUnitIncrement(1);
+			showingPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 			
 	        customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
 	        customScrollBar.setModel(showingPane.getVerticalScrollBar().getModel());

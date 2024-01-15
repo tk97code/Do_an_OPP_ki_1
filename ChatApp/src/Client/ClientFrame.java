@@ -47,6 +47,7 @@ public class ClientFrame extends JFrame {
 
 	public ClientFrame() {
 		setTitle("Welkin Chat - Message");
+		getContentPane().setBackground(Color.white);
 		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
@@ -57,6 +58,8 @@ public class ClientFrame extends JFrame {
 		
 		add(new LeftComponents());
 		add(new RightComponents());
+		
+		
 	}
 	
 }

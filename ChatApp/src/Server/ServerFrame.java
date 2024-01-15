@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 
 
 public class ServerFrame extends JFrame {
@@ -34,7 +35,8 @@ public class ServerFrame extends JFrame {
 	private MyTextField txtIP;
 	private JLabel lblIP;
 	
-	private JButton btnServer;
+	private JButton btnStartServer;
+	private JButton btnStopServer;
 	private JLabel lblTextButtonServer;
 	
 	private JPanel uptimePanel;
@@ -67,6 +69,9 @@ public class ServerFrame extends JFrame {
 	private Font _Popins30 = new Font("Poppins", Font.BOLD, 30);
 	
 	
+	/* Server Core */
+	private ServerCore server;
+	
 	
 	/* ServerFrame info */
 	private int fWidth = 1065;
@@ -86,6 +91,7 @@ public class ServerFrame extends JFrame {
 				try {
 					ServerFrame frame = new ServerFrame();
 					frame.setVisible(true);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -112,26 +118,74 @@ public class ServerFrame extends JFrame {
 		add(serverInfoPanel);
 		generateServerInfoComponents();
 		
+		
+		/* Server */
+		server = new ServerCore(Integer.parseInt(txtPort.getText()));
+		
+		
 		/* Run Server Button */
-		btnServer = new JButton();
-		btnServer.setLayout(null);
-//		btnServer.setContentAreaFilled(false);
-		btnServer.setBounds(serverInfoPanel.getWidth() + 28 + 61, 42, 227, 252);
-		btnServer.setBackground(_primaryBlue);
-		btnServer.setBorder(new RoundedBorder(_primaryBlue, 1, 30));
-		btnServer.addActionListener(new ActionListener() {
+		btnStartServer = new JButton();
+		btnStartServer.setLayout(null);
+//		btnStartServer.setContentAreaFilled(false);
+		btnStartServer.setBounds(serverInfoPanel.getWidth() + 28 + 61, 42, 227, 252);
+		btnStartServer.setBackground(_primaryBlue);
+		btnStartServer.setBorder(new RoundedBorder(_primaryBlue, 1, 30));
+		btnStartServer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Button clicked!");
+//                System.out.println("Button clicked!");
+            	try {
+					DBConnection.getInstance().connectToDatabase();
+					server.startServer();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	btnStartServer.setVisible(false);
+            	btnStopServer.setVisible(true);
             }
         });
-		add(btnServer);
+		add(btnStartServer);
 		
 		lblTextButtonServer = new JLabel();
 		lblTextButtonServer.setText("<html><font color='#FFFFFF'>Start</font></html>");
 		lblTextButtonServer.setBounds(74, 118, 100, 30);
 		lblTextButtonServer.setFont(_Popins30);
-		btnServer.add(lblTextButtonServer);
+		btnStartServer.add(lblTextButtonServer);
+		btnStartServer.setVisible(true);
+		
+		
+		/* Stop Server Button */
+		btnStopServer = new JButton();
+		btnStopServer.setLayout(null);
+//		btnStartServer.setContentAreaFilled(false);
+		btnStopServer.setBounds(serverInfoPanel.getWidth() + 28 + 61, 42, 227, 252);
+		btnStopServer.setBackground(_primaryBlue);
+		btnStopServer.setBorder(new RoundedBorder(_primaryBlue, 1, 30));
+		btnStopServer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//                System.out.println("Button clicked!");
+            	
+            	try {
+					DBConnection.getInstance().closeConnection();
+					server.stopServer();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            	btnStartServer.setVisible(true);
+            	btnStopServer.setVisible(false);
+            }
+        });
+		add(btnStopServer);
+		
+		lblTextButtonServer = new JLabel();
+		lblTextButtonServer.setText("<html><font color='#FFFFFF'>Stop</font></html>");
+		lblTextButtonServer.setBounds(74, 118, 100, 30);
+		lblTextButtonServer.setFont(_Popins30);
+		btnStopServer.add(lblTextButtonServer);
+		btnStopServer.setVisible(false);
 		
 		
 		/* List Online Panel */

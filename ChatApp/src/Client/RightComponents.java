@@ -28,7 +28,6 @@ public class RightComponents extends JPanel {
 		add(new ReceiverUserPanel());
 		add(new MessagePanel());
 		add(new InputMessagePanel());
-		
 	}
 	
 	class ReceiverUserPanel extends JPanel {
