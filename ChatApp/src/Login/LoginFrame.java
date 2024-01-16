@@ -34,6 +34,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,13 +49,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import Client.ClientFrame;
+import Data.LoginData;
+import Data.MessageData;
+import Data.RegisterData;
 import Event.Event;
 import Event.EventLogin;
 import Event.EventMessage;
+import Test.PopupTester;
 import TheSedativePackage.*;
 import TheSedativePackage.RoundedBorder;
 import okhttp3.Call;
-
+import popup.ssn.NotificationPopup;
 import io.socket.client.*;
 
 public class LoginFrame extends JFrame {
@@ -70,16 +78,21 @@ public class LoginFrame extends JFrame {
 	private LoginComponent email;
 	private LoginComponent pass;
 	private LoginComponent passConfirm;
-//	
+
 	private JLabel lblNotify;
 	private JLabel lblAction;
 	
 	private boolean isLogin = true;
-//	
+
 	private JButton btnSubmit;
 	private JLabel lblButton;
 	
 	private JPanel managerAuthPanel;
+	
+	private Image errorURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\error.png");
+	private ImageIcon errorImg = new ImageIcon(errorURL);
+	
+	
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -111,9 +124,38 @@ public class LoginFrame extends JFrame {
 		
 		Event.getInstance().addEventLogin(new EventLogin() {
 			@Override
-			public void login() {
-				// TODO Auto-generated method stub
-				System.out.println("test login");
+			public void login(LoginData data) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						System.out.println("chay vao luong login");
+						LoginService.getInstance().getClient().emit("login", data.toJsonObject(), new Ack() {
+							@Override
+							public void call(Object... res) {
+								// TODO Auto-generated method stub
+								if (res.length > 0) {
+									System.out.println("nhan phan hoi");
+									boolean action = (boolean) res[0];
+									if (action) {
+										dispose();
+										SwingUtilities.invokeLater(new Runnable() {
+										    public void run() {
+										    	dispose();
+										        ClientFrame clientFrame = new ClientFrame();
+										        clientFrame.setVisible(true);
+										    }
+										});
+										System.out.println("Logged in");
+									} else {
+										System.out.println("Failed");
+									}
+								} else {
+									System.out.println("khong nhan duoc phan hoi");
+								}
+							}
+						});
+					}
+				}).start();
 			}
 			
 			@Override
@@ -257,18 +299,93 @@ public class LoginFrame extends JFrame {
 				String emailInput = email.getText();
 				String passInput = pass.getText();
 				
-				RegisterData data = new RegisterData(usernameInput, emailInput, passInput);
-				Event.getInstance().getEventLogin().register(data, new EventMessage() {
-					@Override
-					public void callMessage(MessageData message) {
-						// TODO Auto-generated method stub
-						if (!message.isAction()) {
-							System.out.println(message.getMessage());
-						} else {
-							System.out.println(message.getMessage());
+				Pattern valid_email = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[a-z]{2,6}$", Pattern.CASE_INSENSITIVE);
+				Matcher isValid = valid_email.matcher(emailInput);
+
+				
+				if (usernameInput.length() == 0 || emailInput.length() == 0 
+						|| passInput.length() == 0) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nYou have not entered Username, email, or password");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(450);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
 						}
-					}
-				});
+					}).start();
+				} else if (passInput.length() > 25) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter password less than 25 word");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				} else if (!passInput.equals(passConfirm.getText())) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nConfirm password and password must same");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				} else if (!isValid.matches()) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter valid email address");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				}else {
+					RegisterData data = new RegisterData(usernameInput, emailInput, passInput);
+					Event.getInstance().getEventLogin().register(data, new EventMessage() {
+						@Override
+						public void callMessage(MessageData message) {
+							// TODO Auto-generated method stub
+							if (!message.isAction()) {
+								System.out.println(message.getMessage());
+							} else {
+								System.out.println(message.getMessage());
+							}
+						}
+					});
+				}
 			}
 		});
 		
@@ -376,13 +493,68 @@ public class LoginFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				SwingUtilities.invokeLater(new Runnable() {
-				    public void run() {
-				    	dispose();
-				        ClientFrame clientFrame = new ClientFrame();
-				        clientFrame.setVisible(true);
-				    }
-				});
+				String emailInput = email.getText();
+				String passInput = pass.getText();
+				Pattern valid_email = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[a-z]{2,6}$", Pattern.CASE_INSENSITIVE);
+				Matcher isValid = valid_email.matcher(emailInput);
+				
+				if (passInput.length() > 25) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter password less than 25 word");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				} else if (passInput.length() == 0 || emailInput.length() == 0) {
+						new Thread(new Runnable() {
+						
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin Chat \nYou have not entered email or password");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				} else if (!isValid.matches()) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter valid email address");
+							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+							nf.setIcon(errorImg);
+							nf.setWIDTH(400);
+				            nf.setHEIGHT(80);
+				            nf.setDisplayTime(2000);
+				            nf.setBackgroundColor1(Color.white);
+				            nf.setBackGroundColor2(Color.white);
+				            nf.setForegroundColor(Color.black);	
+				            nf.display();
+						}
+					}).start();
+				} else {
+					LoginData data = new LoginData(emailInput, passInput);
+//					System.out.println("Socket.IO Connection State: " + LoginService.getInstance().getClient().id());
+					Event.getInstance().getEventLogin().login(data);
+				}
 			}
 			
 		});

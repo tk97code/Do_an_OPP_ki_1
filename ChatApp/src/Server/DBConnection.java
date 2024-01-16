@@ -1,6 +1,7 @@
 package Server;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
@@ -22,11 +23,13 @@ public class DBConnection {
         String database = "chatapp";
         String userName = "root";
         String password = "Krisktan5436*****";
-        connection = java.sql.DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + database, userName, password);
+        connection = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + database, userName, password);
+        System.out.println("ConnectToDatabase" + connection);
     }
 
     public Connection getConnection() {
-        return connection;
+    	System.out.println("getConnection()"+this.connection);
+        return this.connection;
     }
     
     public void closeConnection() throws SQLException {

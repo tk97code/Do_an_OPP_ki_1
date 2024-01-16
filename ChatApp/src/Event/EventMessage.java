@@ -1,6 +1,6 @@
 package Event;
 
-import Login.MessageData;
+import Data.MessageData;
 
 public interface EventMessage {
 	public void callMessage(MessageData message);

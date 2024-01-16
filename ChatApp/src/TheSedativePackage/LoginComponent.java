@@ -14,12 +14,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Data.MessageData;
+import Data.RegisterData;
 import Event.Event;
 import Event.EventLogin;
 import Event.EventMessage;
 import Login.LoginService;
-import Login.MessageData;
-import Login.RegisterData;
 import io.socket.client.Ack;
 
 public class LoginComponent extends JPanel {
@@ -56,7 +56,7 @@ public class LoginComponent extends JPanel {
 		label.setBounds(0, 0, 220, 20);
 		add(label);
 		
-		input = new MyTextField() {
+		input = new MyTextField(placeHolder) {
 			@Override
 			protected void paintComponent(Graphics g) {
 				// TODO Auto-generated method stub
@@ -70,30 +70,30 @@ public class LoginComponent extends JPanel {
 		input.setBounds(0, 20, 490, 35);
 		input.setForeground(Color.black);
 		input.setFont(_poppins17);
-		input.setText(this.placeHolder);
-		input.setType(false);
+//		input.setText(this.placeHolder);
+		input.setType(isPass);
 		input.setBorder(new EmptyBorder(0, 40, 0, 0));
-		input.addFocusListener(new FocusListener(){
-			
-		    @Override
-		    public void focusGained(FocusEvent e) {
-		        if (input.getText().equals(placeHolder)) {
-		        	input.setText("");
-		        	if (isPass) {
-		        		input.setType(true);
-		        	}
-		        }
-		    }
-		    @Override
-		    public void focusLost(FocusEvent e) {
-		        if (input.getText().isEmpty()) {
-		        	input.setText(placeHolder);
-		        	if (isPass) {
-		        		input.setType(false);
-		        	}
-		        }
-		    }
-		});
+//		input.addFocusListener(new FocusListener(){
+//			
+//		    @Override
+//		    public void focusGained(FocusEvent e) {
+//		        if (input.getText().equals(placeHolder)) {
+//		        	input.setText("");
+//		        	if (isPass) {
+//		        		input.setType(true);
+//		        	}
+//		        }
+//		    }
+//		    @Override
+//		    public void focusLost(FocusEvent e) {
+//		        if (input.getText().isEmpty()) {
+//		        	input.setText(placeHolder);
+//		        	if (isPass) {
+//		        		input.setType(false);
+//		        	}
+//		        }
+//		    }
+//		});
 		add(input);
 	}
 }

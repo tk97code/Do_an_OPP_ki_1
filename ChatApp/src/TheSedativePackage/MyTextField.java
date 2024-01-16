@@ -26,9 +26,25 @@ public class MyTextField extends JPasswordField {
     private boolean isFocused = false;
     private Color lineColor = new Color(3, 155, 216);
     private boolean isPass = false;
+    private String placeholder;
     
-    public MyTextField() {
+    @Override
+    protected void paintComponent(final Graphics g) {
+        super.paintComponent(g);
+
+        if (placeholder == null || placeholder.length() == 0 || getText().length() > 0) {
+            return;
+        }
+
+        final Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(this.getForeground());
+        g2.drawString(placeholder, getInsets().left, g.getFontMetrics().getMaxAscent() + getInsets().top + 10);
+    }
+    
+    public MyTextField(String placeholder) {
 //        setBorder(new EmptyBorder(20, 3, 10, 3));
+    	this.placeholder = placeholder;
         setSelectionColor(new Color(76, 204, 255));
         addMouseListener(new MouseAdapter() {
             @Override
@@ -49,13 +65,13 @@ public class MyTextField extends JPasswordField {
 			@Override
 			public void focusLost(FocusEvent e) {
 				isFocused = false;
-				
+				repaint();
 			}
 			
 			@Override
 			public void focusGained(FocusEvent e) {
 				isFocused = true;
-				
+				repaint();
 			}
 		});
     }

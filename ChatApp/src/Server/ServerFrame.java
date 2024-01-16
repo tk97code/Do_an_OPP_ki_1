@@ -4,7 +4,13 @@ import javax.swing.border.AbstractBorder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import javax.swing.text.Style;
 
+import TheSedativePackage.ModernScrollBarUI;
 import TheSedativePackage.MyTextField;
 import TheSedativePackage.RoundedBorder;
 
@@ -12,6 +18,8 @@ import java.awt.*;
 import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -52,9 +60,10 @@ public class ServerFrame extends JFrame {
 	private JLabel lblNumbersConnectedClient;
 	
 	
-	/* List Online Client */
-	private JPanel listOnlinePanel;
-	private JLabel lblUserOnline;
+	/* Log */
+	private JPanel logPanel;
+	private JTextPane logArea;
+//	private JLabel lblUserOnline;
 
 	
 	/* Primary Color */
@@ -65,8 +74,8 @@ public class ServerFrame extends JFrame {
 	
 	
 	/* Primary Font */
-	private Font _Popins20 = new Font("Poppins", Font.BOLD, 20);
-	private Font _Popins30 = new Font("Poppins", Font.BOLD, 30);
+	private Font _Popins20 = new Font("SVN-Poppins", Font.BOLD, 20);
+	private Font _Popins30 = new Font("SVN-Poppins", Font.BOLD, 30);
 	
 	
 	/* Server Core */
@@ -103,7 +112,7 @@ public class ServerFrame extends JFrame {
 	public ServerFrame() {
 		/* Main Frame */
 		setResizable(false);
-		setTitle("Server");
+		setTitle("Welkin Server");
 		getContentPane().setBackground(_primaryBackground);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds((sWidth-fWidth)/2, (sHeight-fHeight)/2, fWidth, fHeight);
@@ -117,10 +126,6 @@ public class ServerFrame extends JFrame {
 		serverInfoPanel.setLayout(null);
 		add(serverInfoPanel);
 		generateServerInfoComponents();
-		
-		
-		/* Server */
-		server = new ServerCore(Integer.parseInt(txtPort.getText()));
 		
 		
 		/* Run Server Button */
@@ -188,14 +193,64 @@ public class ServerFrame extends JFrame {
 		btnStopServer.setVisible(false);
 		
 		
-		/* List Online Panel */
-		listOnlinePanel = new JPanel();
-		listOnlinePanel.setLayout(null);
+		/* Log Panel */
+		logPanel = new JPanel();
+		logPanel.setLayout(null);
 //		listOnlinePanel.setOpaque(false);
-		listOnlinePanel.setBounds(61, serverInfoPanel.getHeight() + 28 + 42, 927, 362);
-		listOnlinePanel.setBackground(_primaryPanelGrey);
-		listOnlinePanel.setBorder(new RoundedBorder(_primaryPanelGrey, 1, 30));
-		add(listOnlinePanel);
+		logPanel.setBounds(61, serverInfoPanel.getHeight() + 28 + 42, 927, 362);
+		logPanel.setBackground(_primaryPanelGrey);
+		logPanel.setBorder(new RoundedBorder(_primaryPanelGrey, 1, 30));
+		add(logPanel);
+		
+		logArea = new JTextPane();		
+		logArea.setBackground(_primaryPanelGrey);
+		logArea.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
+		logArea.setForeground(Color.white);
+//		logArea.setEnabled(true);
+		logArea.setEnabled(true);
+		logArea.setEditable(false);
+		
+		JLabel lblLog = new JLabel();
+		lblLog.setText("[LOGS: ]");
+		lblLog.setBounds(10, 15, 100, 20);
+		lblLog.setFont(_Popins20);
+		lblLog.setForeground(Color.white);
+		
+		JScrollPane log = new JScrollPane(logArea);
+		log.setBounds(15, 45, 890, 310);
+		log.setBackground(_primaryPanelGrey);
+		log.setBorder(null);
+		
+		
+//		log.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+		log.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+		
+		JScrollBar customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
+        customScrollBar.setModel(log.getVerticalScrollBar().getModel());
+        customScrollBar.setBounds(910, 20, 10, 342);
+        customScrollBar.setForeground(new Color(48, 144, 216));
+        customScrollBar.setBackground(_primaryPanelGrey);
+        customScrollBar.setUI(new ModernScrollBarUI());
+        
+        logPanel.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+            	int wheelRotation = e.getWheelRotation();
+                int scrollValue = customScrollBar.getValue();
+                int newValue = scrollValue + wheelRotation * 50;
+
+                if (newValue >= customScrollBar.getMinimum() && newValue <= customScrollBar.getMaximum()) {
+                    customScrollBar.setValue(newValue);
+                }
+            }
+        });
+        
+		logPanel.add(lblLog);
+		logPanel.add(log);
+		logPanel.add(customScrollBar); 
+		
+		/* Server */
+		server = new ServerCore(Integer.parseInt(txtPort.getText()), logArea);
 	}
 	
 	/* Add Components into Server Info Panel */
@@ -214,7 +269,7 @@ public class ServerFrame extends JFrame {
 		lblIP.setFont(_Popins20);
 		ipPanel.add(lblIP);
 		
-		txtIP = new MyTextField();
+		txtIP = new MyTextField("Input IP");
 		txtIP.setType(false);
 		txtIP.setBounds(24, lblIP.getX() + lblIP.getHeight() + 8, 274, 36);
 		txtIP.setBackground(_primaryPanelWhite);
@@ -244,7 +299,7 @@ public class ServerFrame extends JFrame {
 		lblPort.setFont(_Popins20);
 		portPanel.add(lblPort);
 		
-		txtPort = new MyTextField();
+		txtPort = new MyTextField("Input Port");
 		txtPort.setType(false);
 		txtPort.setBounds(24, lblPort.getX() + lblPort.getHeight() + 8, 274, 36);
 		txtPort.setBackground(_primaryPanelWhite);
