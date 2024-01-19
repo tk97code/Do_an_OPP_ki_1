@@ -1,5 +1,8 @@
 package Data;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class UserAccountData {
 	
 	private int userID;
@@ -31,6 +34,14 @@ public class UserAccountData {
     public void setImage(String image) {
         this.image = image;
     }
+    
+    public String getEmail() {
+    	return email;
+    }
+    
+    public void setEmail(String email) {
+    	this.email = email;
+    }
 
     public boolean isStatus() {
         return status;
@@ -46,6 +57,19 @@ public class UserAccountData {
         this.email = email;
         this.image = image;
         this.status = status;
+    }
+    
+    public UserAccountData(Object json) {
+        JSONObject obj = (JSONObject) json;
+        try {
+            userID = obj.getInt("userID");
+            userName = obj.getString("userName");
+            email = obj.getString("email");
+            image = obj.getString("image");
+            status = obj.getBoolean("status");
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
     }
 
     public UserAccountData() {

@@ -49,12 +49,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import Client.ClientFrame;
+import ClientEvent.Event;
+import ClientEvent.EventLogin;
+import ClientEvent.EventMessage;
 import Data.LoginData;
 import Data.MessageData;
 import Data.RegisterData;
-import Event.Event;
-import Event.EventLogin;
-import Event.EventMessage;
+import Data.UserAccountData;
 import Test.PopupTester;
 import TheSedativePackage.*;
 import TheSedativePackage.RoundedBorder;
@@ -92,25 +93,30 @@ public class LoginFrame extends JFrame {
 	private Image errorURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\error.png");
 	private ImageIcon errorImg = new ImageIcon(errorURL);
 	
+	private Image successURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\success.png");
+	private ImageIcon successImg = new ImageIcon(successURL);
+	
+	
+//	private ClientFrame clientFrame;
 	
 
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					LoginFrame frame = new LoginFrame();
-					LoginService.getInstance().startServer();
-					frame.setVisible(true);
-					frame.requestFocusInWindow(false);
-					frame.getContentPane().setBackground(Color.white);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			@Override
+//			public void run() {
+//				try {
+//					LoginFrame frame = new LoginFrame();
+//					ClientService.getInstance().startServer();
+//					frame.setVisible(true);
+//					frame.requestFocusInWindow(false);
+//					frame.getContentPane().setBackground(Color.white);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//				
+//			}
+//		});
+//	}
 	
 	public LoginFrame() {
 		setTitle("Welkin Chat - Login");
@@ -121,6 +127,7 @@ public class LoginFrame extends JFrame {
 		setSize(1215, 790);
 		setResizable(false);
 		setLocationRelativeTo(null);
+//		ClientService.getInstance().startServer();
 		
 		Event.getInstance().addEventLogin(new EventLogin() {
 			@Override
@@ -129,28 +136,32 @@ public class LoginFrame extends JFrame {
 					@Override
 					public void run() {
 						System.out.println("chay vao luong login");
-						LoginService.getInstance().getClient().emit("login", data.toJsonObject(), new Ack() {
+						ClientService.getInstance().getClient().emit("login", data.toJsonObject(), new Ack() {
 							@Override
 							public void call(Object... res) {
 								// TODO Auto-generated method stub
 								if (res.length > 0) {
-									System.out.println("nhan phan hoi");
 									boolean action = (boolean) res[0];
 									if (action) {
 										dispose();
 										SwingUtilities.invokeLater(new Runnable() {
 										    public void run() {
+										    	ClientService.getInstance().setUser(new UserAccountData(res[1]));
 										    	dispose();
 										        ClientFrame clientFrame = new ClientFrame();
 										        clientFrame.setVisible(true);
+										    	ClientService.getInstance().getClient().emit("list_user", ClientService.getInstance().getUser().getUserID());
+//										    	System.out.println(res[]);
 										    }
 										});
-										System.out.println("Logged in");
+//										System.out.println("Logged in");
+										Popuper.getInstance().setPopup(successImg, "Welkin chat \nLogged in successfully", 300, 80, 2000);
 									} else {
-										System.out.println("Failed");
+//										System.out.println("Failed");
+										Popuper.getInstance().setPopup(errorImg, "Welkin chat \nLog in failed", 300, 80, 2000);
 									}
 								} else {
-									System.out.println("khong nhan duoc phan hoi");
+									System.out.println("not receive response");
 								}
 							}
 						});
@@ -162,7 +173,7 @@ public class LoginFrame extends JFrame {
 			public void register(RegisterData data, EventMessage message) {
 				// TODO Auto-generated method stub
 				// Ack handle response from server
-				LoginService.getInstance().getClient().emit("register", data.toJsonObject(), new Ack() {
+				ClientService.getInstance().getClient().emit("register", data.toJsonObject(), new Ack() {
 					@Override
 					public void call(Object... res) {
 						// TODO Auto-generated method stub
@@ -199,12 +210,13 @@ public class LoginFrame extends JFrame {
 				g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 				g2.setFont(new Font("Manrope ExtraBold", Font.PLAIN, 40));
+				g2.setColor(Color.black);
 				g2.drawString("Welcome back to", 0, 30);
 				
 				List<ModelColor> colors = new ArrayList<ModelColor>();
 				         
 				colors.add(new ModelColor(new Color(76, 201, 229), 0.3f));
-				colors.add(new ModelColor(new Color(80, 127, 247), 1f));
+				colors.add(new ModelColor(new Color(80, 97, 247), 1f));
 				
 				float[] position = new float[colors.size()];
 				Color color[] = new Color[colors.size()];
@@ -231,7 +243,7 @@ public class LoginFrame extends JFrame {
 		
 		createLogInPanel();
 	}
-	
+
 	public void createSignUpPanel() {
 		userName = new LoginComponent("Username", "Enter your user name", "src\\Image\\user.png", false);
 		userName.addComponets();
@@ -308,68 +320,35 @@ public class LoginFrame extends JFrame {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nYou have not entered Username, email, or password");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(450);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+				            Popuper.getInstance().setPopup(errorImg, "Welkin chat \nYou have not entered Username, email, or password", 450, 80, 2000);
+						}
+					}).start();
+				} else if (passInput.length() < 8) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+				            Popuper.getInstance().setPopup(errorImg, "Welkin chat \nPlease enter password more than 8 words", 400, 80, 2000);
 						}
 					}).start();
 				} else if (passInput.length() > 25) {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter password less than 25 word");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+				            Popuper.getInstance().setPopup(errorImg, "Welkin chat \nPlease enter password less than 25 words", 400, 80, 2000);
 						}
 					}).start();
 				} else if (!passInput.equals(passConfirm.getText())) {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nConfirm password and password must same");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+				            Popuper.getInstance().setPopup(errorImg, "Welkin chat \nConfirm password and password must same", 400, 80, 2000);
 						}
 					}).start();
 				} else if (!isValid.matches()) {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter valid email address");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+							Popuper.getInstance().setPopup(errorImg, "Welkin chat \nPlease enter valid email address", 400, 80, 2000);
 						}
 					}).start();
 				}else {
@@ -379,9 +358,11 @@ public class LoginFrame extends JFrame {
 						public void callMessage(MessageData message) {
 							// TODO Auto-generated method stub
 							if (!message.isAction()) {
-								System.out.println(message.getMessage());
+//								System.out.println(message.getMessage());
+								Popuper.getInstance().setPopup(errorImg, "Welkin chat \nRegistered failed \n"+message.getMessage(), 300, 80, 2000);
 							} else {
-								System.out.println(message.getMessage());
+//								System.out.println(message.getMessage());
+								Popuper.getInstance().setPopup(successImg, "Welkin chat \nRegistered Successfully", 300, 80, 2000);
 							}
 						}
 					});
@@ -498,56 +479,25 @@ public class LoginFrame extends JFrame {
 				Pattern valid_email = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[a-z]{2,6}$", Pattern.CASE_INSENSITIVE);
 				Matcher isValid = valid_email.matcher(emailInput);
 				
-				if (passInput.length() > 25) {
+				if (passInput.length() == 0 || emailInput.length() == 0) {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter password less than 25 word");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+							Popuper.getInstance().setPopup(errorImg, "Welkin chat \nYou have not entered email or password", 400, 80, 2000);
 						}
 					}).start();
-				} else if (passInput.length() == 0 || emailInput.length() == 0) {
-						new Thread(new Runnable() {
-						
-						@Override
-						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin Chat \nYou have not entered email or password");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
-						}
-					}).start();
-				} else if (!isValid.matches()) {
+				}else if (passInput.length() > 25) {
 					new Thread(new Runnable() {
 						@Override
 						public void run() {
-							// TODO Auto-generated method stub
-							NotificationPopup nf = new NotificationPopup("Welkin chat \nPlease enter valid email address");
-							nf.setFont(new Font("SVN-Poppins", Font.PLAIN, 15));
-							nf.setIcon(errorImg);
-							nf.setWIDTH(400);
-				            nf.setHEIGHT(80);
-				            nf.setDisplayTime(2000);
-				            nf.setBackgroundColor1(Color.white);
-				            nf.setBackGroundColor2(Color.white);
-				            nf.setForegroundColor(Color.black);	
-				            nf.display();
+				            Popuper.getInstance().setPopup(errorImg, "Welkin chat \nPlease enter password less than 25 words", 400, 80, 2000);
+						}
+					}).start();
+				}  else if (!isValid.matches()) {
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							Popuper.getInstance().setPopup(errorImg, "Welkin chat \nPlease enter valid email address", 400, 80, 2000);
 						}
 					}).start();
 				} else {

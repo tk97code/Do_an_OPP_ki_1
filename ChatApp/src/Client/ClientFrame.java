@@ -10,6 +10,9 @@ import java.awt.RenderingHints;
 
 import javax.swing.*;
 
+import Login.ClientService;
+import io.socket.client.*;
+
 
 
 public class ClientFrame extends JFrame {
@@ -29,6 +32,8 @@ public class ClientFrame extends JFrame {
 	private int sWidth = gd.getDisplayMode().getWidth();
 	private int sHeight = gd.getDisplayMode().getHeight();
 	
+	private ClientService client;
+	
 	
 //	public static void main(String[] args) {
 //		EventQueue.invokeLater(new Runnable() {
@@ -46,9 +51,10 @@ public class ClientFrame extends JFrame {
 //	}
 
 	public ClientFrame() {
+//		this.client = client;
 		setTitle("Welkin Chat - Message");
 		getContentPane().setBackground(Color.white);
-		setVisible(true);
+//		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLayout(null);
@@ -57,9 +63,14 @@ public class ClientFrame extends JFrame {
 		setLocationRelativeTo(null);
 		
 		add(new LeftComponents());
-		add(new RightComponents());
+//		add(new RightComponents());
+//		ClientService.getInstance().getUser().getImage();
 		
+		add(new WelcomePanel());
 		
+//		ClientService.getInstance().getClient().emit("list_user", ClientService.getInstance().getUser().getUserID());
+//		ClientService.getInstance().startServer();
+//		System.out.println(ClientService.getInstance().getClient());
 	}
 	
 }

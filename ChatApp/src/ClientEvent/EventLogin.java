@@ -1,4 +1,4 @@
-package Event;
+package ClientEvent;
 
 import Data.LoginData;
 import Data.RegisterData;

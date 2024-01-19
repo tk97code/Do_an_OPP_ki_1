@@ -68,10 +68,10 @@ public class ServerCore {
 			public void onData(SocketIOClient client, RegisterData data, AckRequest req) throws Exception {
 				// TODO Auto-generated method stub
 				MessageData message = dbService.register(data);
-				req.sendAckData(message.isAction(), message.getMessage());
+				req.sendAckData(message.isAction(), message.getMessage(), message.getData());
 				if (message.isAction()) {
                     appendLog("Client " + client.getSessionId() + " registered successful \n", Color.white);
-//                    server.getBroadcastOperations().sendEvent("list_user", (Model_User_Account) message.getData());
+//                    server.getBroadcastOperations().sendEvent("list_user", (UserAccountData) message.getData());
                 }
 			}
 		});
@@ -95,6 +95,21 @@ public class ServerCore {
                 }
 			}
 		});
+		
+		server.addEventListener("list_user", Integer.class, new DataListener<Integer>() {
+            @Override
+            public void onData(SocketIOClient client, Integer userReqID, AckRequest req) throws Exception {
+                try {
+                    List<UserAccountData> list = dbService.getOnlineUser(userReqID);
+                    client.sendEvent("list_user", list.toArray());
+                    for (UserAccountData u: list) {
+                    	System.out.println(u.getEmail());
+                    }
+                } catch (SQLException e) {
+                    System.err.println(e);
+                }
+            }
+        });
 		server.start();
 		logArea.setForeground(Color.green);
 		appendLog("SERVER IS STARTED \n", Color.green);

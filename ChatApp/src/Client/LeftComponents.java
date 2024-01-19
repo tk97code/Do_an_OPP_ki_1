@@ -27,9 +27,11 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
@@ -40,12 +42,19 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
 import TheSedativePackage.*;
+import io.socket.emitter.Emitter;
+import io.socket.emitter.Emitter.Listener;
 
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
 import org.jdesktop.animation.timing.interpolation.PropertySetter;
 import org.jdesktop.swingx.border.DropShadowBorder;
 import org.jdesktop.swingx.graphics.ShadowRenderer;
+
+import ClientEvent.Event;
+import ClientEvent.EventMenuLeft;
+import Data.UserAccountData;
+import Login.ClientService;
 
 
 
@@ -57,19 +66,21 @@ public class LeftComponents extends JPanel {
 	
 	/* Primary Font */
 	private Font _ManropeExtraBold24 = new Font("Manrope ExtraBold", Font.PLAIN, 24);
-	
+
+	private JLayeredPane managerPanel;
 	
 	public LeftComponents() {
 		setLayout(null);
 		setBounds(0, 0, 340, 860);
+		
 	
-		JLayeredPane managerPanel = new JLayeredPane();
+		managerPanel = new JLayeredPane();
 		managerPanel.setBounds(0, 0, 340, 860);
 		managerPanel.setLayout(null);
 		add(managerPanel);
 		
-		managerPanel.add(new UserPanel(), JLayeredPane.DEFAULT_LAYER);
 		managerPanel.add(new AccountPanel(), JLayeredPane.DEFAULT_LAYER);
+		managerPanel.add(new UserPanel(), JLayeredPane.DEFAULT_LAYER);
 		managerPanel.add(new TabBarPanel(), JLayeredPane.PALETTE_LAYER);
 	}
 		
@@ -93,8 +104,10 @@ public class LeftComponents extends JPanel {
 			avtImg.setBorder(new RoundedBorder(new Color(175, 187, 247), 2, 15));
 			add(avtImg);
 			
+			
 			lblUserName = new JLabel();
-			lblUserName.setText("<html><font color='#000000'>TheSedative</font></html>");
+			lblUserName.setText(ClientService.getInstance().getUser().getUserName());
+			lblUserName.setForeground(Color.black);
 			lblUserName.setBounds(105, 32, 230, 38);
 			lblUserName.setFont(_ManropeExtraBold24);
 			add(lblUserName);
@@ -108,6 +121,8 @@ public class LeftComponents extends JPanel {
 		private JList<AccountComponent> listAccount;
 		private JScrollPane showingPane;
 		private JScrollBar customScrollBar;
+		private List<UserAccountData> userAccount;
+		
 		
 		public AccountPanel() {
 			setLayout(new BorderLayout());
@@ -115,17 +130,19 @@ public class LeftComponents extends JPanel {
 			setBackground(_primaryWhite);
 			setBorder(new MatteBorder(0, 0, 0, 2, new Color(0, 0, 0, 51)));
 			
+			modelList = new DefaultListModel<AccountComponent>();
+			userAccount = new ArrayList<UserAccountData>();
+			
+			
 			listAccountPanel = new JPanel();
 			listAccountPanel.setBounds(0, 86, 325, 760);
 			listAccountPanel.setLayout(new FlowLayout());
 			listAccountPanel.setBackground(_primaryWhite);
-			 add(listAccountPanel);
+			add(listAccountPanel);
 			
-			modelList = new DefaultListModel<AccountComponent>();
-			for (int i = 0; i < 25; i++) {
-				modelList.addElement(new AccountComponent());
-			}
-			
+//			for (int i = 0; i < 25; i++) {
+//				modelList.addElement(new AccountComponent());
+//			}
 			listAccount = new JList<>(modelList) {
 				@Override
 				protected void processMouseMotionEvent(MouseEvent e) {
@@ -146,6 +163,29 @@ public class LeftComponents extends JPanel {
 			
 			showingPane.getVerticalScrollBar().setUnitIncrement(1);
 			showingPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
+			
+			Event.getInstance().addEventMenuLeft(new EventMenuLeft() {
+//	            @Override
+	            public void listUser(List<UserAccountData> users) {
+	            	SwingUtilities.invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							for (UserAccountData d : users) {
+			                    userAccount.add(d);
+			                    modelList.addElement(new AccountComponent(d.getUserName()));
+//			                    refreshMenuList();
+			                }
+							modelList.addElement(new AccountComponent(users.get(users.size() - 1).getUserName()));
+							
+							showingPane.repaint();
+							showingPane.revalidate();
+						}
+					});
+	                
+	            }
+	        });
+			
 			
 	        customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
 	        customScrollBar.setModel(showingPane.getVerticalScrollBar().getModel());

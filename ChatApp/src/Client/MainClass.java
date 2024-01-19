@@ -1,17 +1,22 @@
 package Client;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.SwingUtilities;
 
 import Login.LoginFrame;
-import Login.LoginService;
+import Login.ClientService;
 
 public class MainClass {
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
+		        ClientService.getInstance().startServer();
+//		        ClientFrame clientFrame = new ClientFrame(ClientService.getInstance().getClient());
 		        LoginFrame loginFrame = new LoginFrame();
-//		        LoginService.getInstance().startServer();
+//		        clientFrame.setVisible(true);
 		        loginFrame.setVisible(true);
 		    }
 		});

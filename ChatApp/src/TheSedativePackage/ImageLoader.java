@@ -6,6 +6,7 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class ImageLoader extends JPanel {
 	
@@ -14,6 +15,7 @@ public class ImageLoader extends JPanel {
 	public ImageLoader(Image image) {
 		this.image = image;
 	}
+	
 	
 	@Override
 	protected void paintComponent(Graphics g) {

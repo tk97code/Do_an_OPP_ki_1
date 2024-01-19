@@ -82,7 +82,7 @@ public class TestListModel extends JFrame {
 		DefaultListModel<AccountComponent> model = new DefaultListModel<>();
 		for (int i = 0; i < 20; i++) {
 //			model.addElement(createSpacer());
-			model.addElement(new AccountComponent());
+			model.addElement(new AccountComponent("sdfgdgf"));
 		}
 		
 		JList<AccountComponent> list = new JList<>(model);

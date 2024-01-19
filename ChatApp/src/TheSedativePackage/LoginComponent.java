@@ -14,12 +14,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import ClientEvent.Event;
+import ClientEvent.EventLogin;
+import ClientEvent.EventMessage;
 import Data.MessageData;
 import Data.RegisterData;
-import Event.Event;
-import Event.EventLogin;
-import Event.EventMessage;
-import Login.LoginService;
+import Login.ClientService;
 import io.socket.client.Ack;
 
 public class LoginComponent extends JPanel {
