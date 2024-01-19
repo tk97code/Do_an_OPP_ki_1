@@ -40,6 +40,8 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import TheSedativePackage.*;
 import io.socket.emitter.Emitter;
@@ -150,6 +152,20 @@ public class LeftComponents extends JPanel {
 					super.processMouseMotionEvent(e);
 				}
 			};
+			
+			listAccount.addListSelectionListener(new ListSelectionListener() {
+			    @Override
+			    public void valueChanged(ListSelectionEvent e) {
+			        if (!e.getValueIsAdjusting()) {
+			            // This block will be executed when the selection changes
+			            AccountComponent selectedComponent = listAccount.getSelectedValue();
+			            if (selectedComponent != null) {
+			                System.out.println(selectedComponent.getUserName());
+			            }
+			        }
+			    }
+			});
+			
 			listAccount.setCellRenderer(new PanelListCellRenderer());
 			listAccount.setBorder(BorderFactory.createEmptyBorder());
 			listAccount.setBackground(_primaryWhite);
@@ -185,7 +201,6 @@ public class LeftComponents extends JPanel {
 	                
 	            }
 	        });
-			
 			
 	        customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
 	        customScrollBar.setModel(showingPane.getVerticalScrollBar().getModel());
