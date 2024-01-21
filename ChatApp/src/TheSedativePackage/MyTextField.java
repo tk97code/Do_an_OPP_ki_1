@@ -11,6 +11,9 @@ import java.awt.RenderingHints;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
@@ -18,6 +21,7 @@ import java.awt.geom.Rectangle2D;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.DefaultEditorKit;
 
 public class MyTextField extends JPasswordField {
 
@@ -45,6 +49,22 @@ public class MyTextField extends JPasswordField {
     public MyTextField(String placeholder) {
 //        setBorder(new EmptyBorder(20, 3, 10, 3));
     	this.placeholder = placeholder;
+    	
+    	addKeyListener(new KeyAdapter() {
+    		@Override
+    		public void keyPressed(KeyEvent e) {
+    			// TODO Auto-generated method stub
+    			super.keyPressed(e);
+    			if (getText().length() == 0) {
+    	    		getActionMap().get(DefaultEditorKit.deletePrevCharAction).setEnabled(false);
+    	    	} else {
+    	    		getActionMap().get(DefaultEditorKit.deletePrevCharAction).setEnabled(true);
+    	    	}
+    		}
+    	});
+    	
+    	
+    	
         setSelectionColor(new Color(76, 204, 255));
         addMouseListener(new MouseAdapter() {
             @Override

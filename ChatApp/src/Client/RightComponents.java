@@ -3,13 +3,23 @@ package Client;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.plaf.PanelUI;
+import javax.swing.text.DefaultEditorKit;
 
 import TheSedativePackage.ImageLoader;
+import TheSedativePackage.ModernScrollBarUI;
 import TheSedativePackage.RoundedBorder;
+import TheSedativePackage.ScrollablePanel;
 
 import java.awt.*;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class RightComponents extends JPanel {
@@ -21,20 +31,30 @@ public class RightComponents extends JPanel {
 	private Font _ManropeExtraBold20 = new Font("Manrope ExtraBold", Font.PLAIN, 20);
 	private Font _ManropeSemiBold15 = new Font("Manrope SemiBold", Font.PLAIN, 15);
 	
-	public RightComponents() {
+	private String userName;
+	
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	public RightComponents(String userName) {
+		this.userName = userName;
+		
 		setBounds(340, 0, 885, 860);
 		setLayout(null);
 		
 		add(new ReceiverUserPanel());
-		add(new MessagePanel());
+		add(new ChatPanel());
 		add(new InputMessagePanel());
 	}
 	
 	class ReceiverUserPanel extends JPanel {
-		private JLabel lblReceiverImage;
+		private JLabel lblReceiver;
 		private Image avtURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\0.jpg");
 		private Image avt = avtURL.getScaledInstance(55, 55, Image.SCALE_SMOOTH);
 		private ImageLoader avtImg;
+		
+		
 		
 		public ReceiverUserPanel() {
 			setLayout(null);
@@ -48,20 +68,164 @@ public class RightComponents extends JPanel {
 			avtImg.setBorder(new RoundedBorder(new Color(175, 187, 247), 2, 100));
 			add(avtImg);
 			
-			lblReceiverImage = new JLabel();
-			lblReceiverImage.setText("<html><font color='#000000'>TestUser</font></html>");
-			lblReceiverImage.setBounds(105, 40, 230, 20);
-			lblReceiverImage.setFont(_ManropeExtraBold20);
-			add(lblReceiverImage);
+			
+			lblReceiver = new JLabel();
+			lblReceiver.setText(userName);
+			lblReceiver.setForeground(Color.black);
+			lblReceiver.setBounds(105, 40, 230, 25);
+			lblReceiver.setFont(_ManropeExtraBold20);
+			add(lblReceiver);
 		}
 	}
 	
-	class MessagePanel extends JPanel {
+	class ChatPanel extends JPanel {
 		
-		public MessagePanel() {
-//			setBounds();
+		private ScrollablePanel contentPanel;
+		private JScrollPane scrollPane;
+		private GridBagConstraints gbc;
+		private JScrollBar customScrollBar;
+		
+		private int row;
+		
+		public void addSendMessage(String msg) {
+			gbc.gridy = row++;
 			
+        	JPanel p = new JPanel( new FlowLayout(FlowLayout.RIGHT) );
+            p.setBorder( new EmptyBorder(10, 10, 10, 10) );
+            p.setBackground(new Color(0, 0, 0, 0));
+            JTextArea text = new JTextArea() {
+            	@Override
+			    protected void paintBorder(Graphics g) {
+					Graphics2D g2 = (Graphics2D) g;
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+			        g2.setColor(new Color(112, 156, 230));
+			        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+			    }
+            	
+            	@Override
+			    protected void paintComponent(Graphics g) {
+					Graphics2D g2 = (Graphics2D) g;
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+			        g2.setColor(getBackground());
+			        g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+			        
+			        super.paintComponent(g);
+			        
+				}
+            };
+            text.setOpaque(false);
+            text.append(msg);
+            text.setEditable(false);
+            text.setBorder(new EmptyBorder(10, 10, 10, 10));
+            text.setForeground(Color.white);
+            text.setBackground(new Color(91, 150, 247));
+//            text.setColumns(100);
+            Canvas c = new Canvas();
+            int w = c.getFontMetrics(text.getFont()).stringWidth(text.getText());
+            if (w > 1000) {
+            	text.setColumns(100);
+            }
+//            text.setMaximumSize(new Dimension(400, 100));
+            text.setBounds(30, 0, 300,300);
+            text.setLineWrap( true );
+            p.add(text, FlowLayout.LEFT);
+            contentPanel.add(p, gbc);
+            contentPanel.revalidate();
 		}
+		
+		public void addReceiveMessage(String msg) {
+			gbc.gridy = row++;
+			
+			JPanel p = new JPanel( new FlowLayout(FlowLayout.LEFT) );
+            p.setBorder( new EmptyBorder(10, 10, 10, 10) );
+            p.setBackground(new Color(0, 0, 0, 0));
+            JTextArea text = new JTextArea() {
+            	@Override
+			    protected void paintBorder(Graphics g) {
+					Graphics2D g2 = (Graphics2D) g;
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+			        g2.setColor(Color.white);
+			        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+			    }
+            	
+            	@Override
+			    protected void paintComponent(Graphics g) {
+					Graphics2D g2 = (Graphics2D) g;
+					g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+			        g2.setColor(getBackground());
+			        g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+			        
+			        super.paintComponent(g);
+			        
+				}
+            };
+            text.setOpaque(false);
+            text.append(msg);
+            text.setEditable(false);
+            text.setBorder(new EmptyBorder(10, 10, 10, 10));
+            text.setForeground(Color.black);
+            text.setBackground(Color.white);
+//            text.setColumns(100);
+            Canvas c = new Canvas();
+            int w = c.getFontMetrics(text.getFont()).stringWidth(text.getText());
+            if (w > 1000) {
+            	text.setColumns(100);
+            }
+//            text.setMaximumSize(new Dimension(400, 100));
+            text.setBounds(30, 0, 300,300);
+            text.setLineWrap( true );
+            p.add(text, FlowLayout.LEFT);
+            contentPanel.add(p, gbc);
+            contentPanel.revalidate();
+		}
+		
+		public ChatPanel() {
+			setBounds(0, 100, 885, 680);
+			setBackground(Color.red);
+			setLayout(null);
+			
+			contentPanel = new ScrollablePanel(new GridBagLayout());
+//			contentPanel.setBackground(new Color(240, 244, 250));
+			contentPanel.setScrollableWidth(ScrollablePanel.ScrollableSizeHint.FIT);
+	        gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(10, 10, 10, 10);
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;
+	        gbc.weightx = 1.0;
+	        gbc.fill = GridBagConstraints.HORIZONTAL;
+//	        gbc.anchor = GridBagConstraints.PAGE_START;
+	        
+	        scrollPane = new JScrollPane(contentPanel);
+//	        scrollPane.setSize(new Dimension(1000, 700));
+	        scrollPane.setBounds(0, 0, 875, 680);
+	        scrollPane.setBackground(new Color(240, 244, 250));
+	        scrollPane.setBorder(null);
+	        contentPanel.addContainerListener(new ContainerAdapter() {
+	            public void componentAdded(ContainerEvent e) {
+	                SwingUtilities.invokeLater(new Runnable() {
+	                    public void run() {
+	                    	scrollPane.getVerticalScrollBar().setValue(scrollPane.getVerticalScrollBar().getMaximum());
+	                    }
+	                });
+	            }
+	        }); 
+	        
+	        scrollPane.addMouseListener(new MouseAdapter() {
+	        	@Override
+	        	public void mousePressed(MouseEvent e) {
+	        		// TODO Auto-generated method stub
+	        		addReceiveMessage("ádfasdfasdf");
+	    	        addSendMessage("lorem");
+	        		super.mousePressed(e);
+	        	}
+	        });
+	        add(scrollPane);
+		}
+		
 	}
 	
 	class InputMessagePanel extends JPanel {
@@ -86,8 +250,14 @@ public class RightComponents extends JPanel {
 			        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 			        g2.setColor(getBackground());
 			        g2.fillRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
+			        
+			        if (getText().isEmpty()) {
+			            g2.setColor(this.getForeground());
+			            g2.drawString("Write a message", getInsets().left, g.getFontMetrics().getMaxAscent() + getInsets().top + 12);
+			        }
 			        super.paintComponent(g);
-			    }
+			        
+				}
 				
 				@Override
 			    protected void paintBorder(Graphics g) {
@@ -98,24 +268,22 @@ public class RightComponents extends JPanel {
 			        g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 30, 30);
 			    }
 			};
+			inputMessage.addKeyListener(new KeyAdapter() {
+	    		@Override
+	    		public void keyPressed(KeyEvent e) {
+	    			// TODO Auto-generated method stub
+	    			super.keyPressed(e);
+	    			if (inputMessage.getText().length() == 0) {
+	    	    		inputMessage.getActionMap().get(DefaultEditorKit.deletePrevCharAction).setEnabled(false);
+	    	    	} else {
+	    	    		inputMessage.getActionMap().get(DefaultEditorKit.deletePrevCharAction).setEnabled(true);
+	    	    	}
+	    		}
+	    	});
+			
 			inputMessage.setBorder(new EmptyBorder(0, 20, 0, 0));
 			inputMessage.setFont(_ManropeSemiBold15);
 			inputMessage.setForeground(new Color(73, 133, 234));
-			inputMessage.setText("Write a message...");
-			inputMessage.addFocusListener(new FocusListener(){
-			    @Override
-			    public void focusGained(FocusEvent e) {
-			        if (inputMessage.getText().equals("Write a message...")) {
-			        	inputMessage.setText("");
-			        }
-			    }
-			    @Override
-			    public void focusLost(FocusEvent e) {
-			        if (inputMessage.getText().isEmpty()) {
-			        	inputMessage.setText("Write a message...");
-			        }
-			    }
-			});
 			inputMessage.setOpaque(false);
 			inputMessage.setBounds(20, 17, 765, 45);
 			inputMessage.setBackground(new Color(234, 242, 254));
@@ -130,7 +298,6 @@ public class RightComponents extends JPanel {
 			
 			lblSendIcon = new JLabel();
 			lblSendIcon.setIcon(sendIcon);
-//			lblSendIcon.setPreferredSize(new Dimension(45, 45));
 			lblSendIcon.setBounds(10, 2, 45, 45);
 			btnSendMessage.add(lblSendIcon);
 		}

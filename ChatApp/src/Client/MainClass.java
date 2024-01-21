@@ -14,7 +14,7 @@ public class MainClass {
 		SwingUtilities.invokeLater(new Runnable() {
 		    public void run() {
 		        ClientService.getInstance().startServer();
-//		        ClientFrame clientFrame = new ClientFrame(ClientService.getInstance().getClient());
+//		        ClientFrame clientFrame = new ClientFrame();
 		        LoginFrame loginFrame = new LoginFrame();
 //		        clientFrame.setVisible(true);
 		        loginFrame.setVisible(true);

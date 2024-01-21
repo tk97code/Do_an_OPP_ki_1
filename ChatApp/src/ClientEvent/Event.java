@@ -4,6 +4,8 @@ public class Event {
 	private static Event instance;
 	private EventLogin eventLogin;
 	private EventMenuLeft eventMenuLeft;
+	private EventMenuRight eventMenuRight;
+	private EventUserStatus eventUserStatus;
 
     public static Event getInstance() {
         if (instance == null) {
@@ -26,6 +28,22 @@ public class Event {
 
     public EventMenuLeft getEventMenuLeft() {
     	return eventMenuLeft;
+    }
+    
+    public void addEventMenuRight(EventMenuRight event) {
+    	this.eventMenuRight = event;
+    }
+
+    public EventMenuRight getEventMenuRight() {
+    	return eventMenuRight;
+    }
+    
+    public void addEventUserStatus(EventUserStatus event) {
+    	this.eventUserStatus = event;
+    }
+
+    public EventUserStatus getEventUserStatus() {
+    	return eventUserStatus;
     }
     
 }

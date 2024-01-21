@@ -10,30 +10,23 @@ import java.awt.RenderingHints;
 
 import javax.swing.*;
 
+import ClientEvent.Event;
+import ClientEvent.EventMenuRight;
 import Login.ClientService;
 import io.socket.client.*;
 
 
 
 public class ClientFrame extends JFrame {
-
-////	/* ClientFrame info */
-//	private int fWidth = 1265; //+15
-//	private int fHeight = 940; //+40
 	
-	
-//	/* ClientFrame info */
+	/* ClientFrame info */
 	private int fWidth = 1215 + 15; //+15
 	private int fHeight = 860 + 40; //+40
 	
-	
-	/* Get Screen Size */
-	private GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-	private int sWidth = gd.getDisplayMode().getWidth();
-	private int sHeight = gd.getDisplayMode().getHeight();
-	
 	private ClientService client;
-	
+	private WelcomePanel welcome;
+	private LeftComponents left;
+	private RightComponents right;
 	
 //	public static void main(String[] args) {
 //		EventQueue.invokeLater(new Runnable() {
@@ -51,26 +44,33 @@ public class ClientFrame extends JFrame {
 //	}
 
 	public ClientFrame() {
-//		this.client = client;
 		setTitle("Welkin Chat - Message");
 		getContentPane().setBackground(Color.white);
-//		setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
 		setLayout(null);
-//		setBounds((sWidth-fWidth)/2, (sHeight-fHeight)/2, fWidth, fHeight);
 		setSize(fWidth, fHeight);
 		setLocationRelativeTo(null);
+		left = new LeftComponents();
+		welcome = new WelcomePanel();
 		
-		add(new LeftComponents());
-//		add(new RightComponents());
-//		ClientService.getInstance().getUser().getImage();
 		
-		add(new WelcomePanel());
+		Event.getInstance().addEventMenuRight(new EventMenuRight() {
+			@Override
+			public void loadRightComponents(String name) {
+				welcome.setVisible(false);
+				if (right != null) {
+					remove(right);
+				}
+				right = new RightComponents(name);
+				add(right);
+				revalidate();
+				repaint();
+			}
+		});
 		
-//		ClientService.getInstance().getClient().emit("list_user", ClientService.getInstance().getUser().getUserID());
-//		ClientService.getInstance().startServer();
-//		System.out.println(ClientService.getInstance().getClient());
+		add(left);
+		add(welcome);
 	}
 	
 }

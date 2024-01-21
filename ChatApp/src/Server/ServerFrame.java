@@ -18,6 +18,8 @@ import java.awt.*;
 import java.awt.dnd.DragSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.geom.Area;
@@ -90,9 +92,8 @@ public class ServerFrame extends JFrame {
 	/* Get Screen Size */
 	private GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 	private int sWidth = gd.getDisplayMode().getWidth();
-	private int sHeight = gd.getDisplayMode().getHeight();
+	private int sHeight = gd.getDisplayMode().getHeight();	
 	
-		
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
@@ -210,6 +211,8 @@ public class ServerFrame extends JFrame {
 		logArea.setEnabled(true);
 		logArea.setEditable(false);
 		
+		
+		
 		JLabel lblLog = new JLabel();
 		lblLog.setText("[LOGS: ]");
 		lblLog.setBounds(10, 15, 100, 20);
@@ -225,12 +228,24 @@ public class ServerFrame extends JFrame {
 //		log.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 		log.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
 		
+		
 		JScrollBar customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
         customScrollBar.setModel(log.getVerticalScrollBar().getModel());
         customScrollBar.setBounds(910, 20, 10, 342);
         customScrollBar.setForeground(new Color(48, 144, 216));
         customScrollBar.setBackground(_primaryPanelGrey);
         customScrollBar.setUI(new ModernScrollBarUI());
+        
+        log.getVerticalScrollBar().setUnitIncrement(4);
+        
+        log.getVerticalScrollBar().addHierarchyListener(new HierarchyListener() {
+        	  @Override
+        	  public void hierarchyChanged(HierarchyEvent e) {
+        		  if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED && (e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+        			  	customScrollBar.setVisible(log.getVerticalScrollBar().isVisible());
+        		  }
+        	  }
+        });
         
         logPanel.addMouseWheelListener(new MouseWheelListener() {
             @Override

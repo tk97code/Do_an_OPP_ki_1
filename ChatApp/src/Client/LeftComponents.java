@@ -16,6 +16,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -65,16 +67,17 @@ public class LeftComponents extends JPanel {
 	private Color _primaryWhite = new Color(248, 250, 255);
 	private Color _primaryLightBlue = new Color(163, 192, 240);
 	
-	
 	/* Primary Font */
 	private Font _ManropeExtraBold24 = new Font("Manrope ExtraBold", Font.PLAIN, 24);
 
 	private JLayeredPane managerPanel;
 	
+	private static List<UserAccountData> userAccount;
+	
 	public LeftComponents() {
 		setLayout(null);
 		setBounds(0, 0, 340, 860);
-		
+		userAccount = new ArrayList<>();
 	
 		managerPanel = new JLayeredPane();
 		managerPanel.setBounds(0, 0, 340, 860);
@@ -123,7 +126,7 @@ public class LeftComponents extends JPanel {
 		private JList<AccountComponent> listAccount;
 		private JScrollPane showingPane;
 		private JScrollBar customScrollBar;
-		private List<UserAccountData> userAccount;
+		
 		
 		
 		public AccountPanel() {
@@ -133,7 +136,6 @@ public class LeftComponents extends JPanel {
 			setBorder(new MatteBorder(0, 0, 0, 2, new Color(0, 0, 0, 51)));
 			
 			modelList = new DefaultListModel<AccountComponent>();
-			userAccount = new ArrayList<UserAccountData>();
 			
 			
 			listAccountPanel = new JPanel();
@@ -160,7 +162,8 @@ public class LeftComponents extends JPanel {
 			            // This block will be executed when the selection changes
 			            AccountComponent selectedComponent = listAccount.getSelectedValue();
 			            if (selectedComponent != null) {
-			                System.out.println(selectedComponent.getUserName());
+//			                System.out.println(selectedComponent.getUserName());
+			                Event.getInstance().getEventMenuRight().loadRightComponents(selectedComponent.getUserName());
 			            }
 			        }
 			    }
@@ -174,33 +177,46 @@ public class LeftComponents extends JPanel {
 			showingPane = new JScrollPane(listAccount);
 			showingPane.setBorder(BorderFactory.createEmptyBorder());
 			showingPane.setPreferredSize(new Dimension(290, 760));
-			showingPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-			showingPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+//			showingPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+//			showingPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			showingPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
+			showingPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0,0));
 			
 			showingPane.getVerticalScrollBar().setUnitIncrement(1);
 			showingPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 			
 			Event.getInstance().addEventMenuLeft(new EventMenuLeft() {
-//	            @Override
+	            @Override
 	            public void listUser(List<UserAccountData> users) {
 	            	SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
+//							modelList.clear();
+							
+							try {
+								modelList.remove(modelList.getSize() - 1);
+							} catch(Exception e) {
+								System.out.println("undefined last element");
+							}
+							
 							// TODO Auto-generated method stub
 							for (UserAccountData d : users) {
 			                    userAccount.add(d);
 			                    modelList.addElement(new AccountComponent(d.getUserName()));
 //			                    refreshMenuList();
 			                }
-							modelList.addElement(new AccountComponent(users.get(users.size() - 1).getUserName()));
+							try {
+								modelList.addElement(new AccountComponent(users.get(users.size() - 1).getUserName()));
+							} catch(Exception e) {
+							}
+							
 							
 							showingPane.repaint();
 							showingPane.revalidate();
 						}
-					});
-	                
+					});  
 	            }
-	        });
+			});
 			
 	        customScrollBar = new JScrollBar(JScrollBar.VERTICAL);
 	        customScrollBar.setModel(showingPane.getVerticalScrollBar().getModel());
@@ -208,6 +224,7 @@ public class LeftComponents extends JPanel {
 	        customScrollBar.setForeground(new Color(48, 144, 216));
 	        customScrollBar.setBackground(_primaryWhite);
 	        customScrollBar.setUI(new ModernScrollBarUI());
+	        
 	        
 	        listAccount.addMouseWheelListener(new MouseWheelListener() {
 	            @Override
@@ -220,6 +237,15 @@ public class LeftComponents extends JPanel {
 	                    customScrollBar.setValue(newValue);
 	                }
 	            }
+	        });
+	        
+	        showingPane.getVerticalScrollBar().addHierarchyListener(new HierarchyListener() {
+	        	  @Override
+	        	  public void hierarchyChanged(HierarchyEvent e) {
+	        		  if (e.getID() == HierarchyEvent.HIERARCHY_CHANGED && (e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
+	        			  	customScrollBar.setVisible(showingPane.getVerticalScrollBar().isVisible());
+	        		  }
+	        	  }
 	        });
 	        
 	        listAccountPanel.add(showingPane);
