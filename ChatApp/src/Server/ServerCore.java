@@ -86,7 +86,8 @@ public class ServerCore {
 				req.sendAckData(message.isAction(), message.getMessage(), message.getData());
 				if (message.isAction()) {
                     appendLog("Client " + client.getSessionId() + " registered successful \n", Color.white);
-                    server.getBroadcastOperations().sendEvent("list_user", (UserAccountData) message.getData());
+//                    server.getBroadcastOperations().sendEvent("list_user", (UserAccountData) message.getData());
+                    server.getBroadcastOperations().sendEvent("update_status", dbService.getAllUsers().toArray());
                 }
 			}
 		});
@@ -157,6 +158,7 @@ public class ServerCore {
                 if (userID != 0) {
                 	try {
 						dbService.setDisconnect(userID);
+						server.getBroadcastOperations().sendEvent("update_status", dbService.getAllUsers().toArray());
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

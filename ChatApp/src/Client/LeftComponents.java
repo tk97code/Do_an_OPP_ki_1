@@ -181,9 +181,9 @@ public class LeftComponents extends JPanel {
 //			showingPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 //			showingPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			showingPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0));
-			showingPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0,0));
+//			showingPane.getHorizontalScrollBar().setPreferredSize(new Dimension(0,0));
 			
-			showingPane.getVerticalScrollBar().setUnitIncrement(1);
+			showingPane.getVerticalScrollBar().setUnitIncrement(2);
 			showingPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 			
 			Event.getInstance().addEventMenuLeft(new EventMenuLeft() {
@@ -233,7 +233,7 @@ public class LeftComponents extends JPanel {
 	        customScrollBar.setUI(new ModernScrollBarUI());
 	        
 	        
-	        listAccount.addMouseWheelListener(new MouseWheelListener() {
+	        addMouseWheelListener(new MouseWheelListener() {
 	            @Override
 	            public void mouseWheelMoved(MouseWheelEvent e) {
 	            	int wheelRotation = e.getWheelRotation();
@@ -243,6 +243,8 @@ public class LeftComponents extends JPanel {
 	                if (newValue >= customScrollBar.getMinimum() && newValue <= customScrollBar.getMaximum()) {
 	                    customScrollBar.setValue(newValue);
 	                }
+	                showingPane.repaint();
+                    showingPane.revalidate();
 	            }
 	        });
 	        

@@ -82,7 +82,7 @@ public class DBService {
                 con.setAutoCommit(true);
                 message.setAction(true);
                 message.setMessage("Ok");
-                message.setData(new UserAccountData(userID, data.getUserName(), data.getEmail(), "", true));
+                message.setData(new UserAccountData(userID, data.getUserName(), data.getEmail(), "", false));
             }
         } catch (SQLException e) {
         	e.printStackTrace();

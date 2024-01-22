@@ -415,6 +415,21 @@ public class RightComponents extends JPanel {
 			inputMessage.setBackground(new Color(234, 242, 254));
 			add(inputMessage);
 			
+			Action action = new AbstractAction()
+			{
+			    @Override
+			    public void actionPerformed(ActionEvent e)
+			    {
+			    	String text = inputMessage.getText();
+					SendMessageData message = new SendMessageData(ClientService.getInstance().getUser().getUserID(), toUser.getUserID(), text);
+					send(message);
+					Event.getInstance().getEventChat().sendMessage(message);
+					inputMessage.setText("");
+			    }
+			};
+			
+			inputMessage.addActionListener(action);
+			
 			btnSendMessage = new JButton();
 			btnSendMessage.setBounds(805, 17, 45, 45);
 			btnSendMessage.setBackground(new Color(91, 150, 247));
@@ -434,6 +449,7 @@ public class RightComponents extends JPanel {
 					inputMessage.setText("");
 				}
 			});
+			
 			
 			lblSendIcon = new JLabel();
 			lblSendIcon.setIcon(sendIcon);
