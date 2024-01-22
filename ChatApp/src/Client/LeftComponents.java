@@ -57,6 +57,7 @@ import org.jdesktop.swingx.graphics.ShadowRenderer;
 
 import ClientEvent.Event;
 import ClientEvent.EventMenuLeft;
+import Data.ListUsersAccountData;
 import Data.UserAccountData;
 import Login.ClientService;
 
@@ -72,12 +73,9 @@ public class LeftComponents extends JPanel {
 
 	private JLayeredPane managerPanel;
 	
-	private static List<UserAccountData> userAccount;
-	
 	public LeftComponents() {
 		setLayout(null);
 		setBounds(0, 0, 340, 860);
-		userAccount = new ArrayList<>();
 	
 		managerPanel = new JLayeredPane();
 		managerPanel.setBounds(0, 0, 340, 860);
@@ -163,7 +161,7 @@ public class LeftComponents extends JPanel {
 			            AccountComponent selectedComponent = listAccount.getSelectedValue();
 			            if (selectedComponent != null) {
 //			                System.out.println(selectedComponent.getUserName());
-			                Event.getInstance().getEventMenuRight().loadRightComponents(selectedComponent.getUserName());
+			                Event.getInstance().getEventMenuRight().loadRightComponents(selectedComponent.getUserName(), selectedComponent.getToUser());
 			            }
 			        }
 			    }
@@ -193,6 +191,7 @@ public class LeftComponents extends JPanel {
 						public void run() {
 //							modelList.clear();
 							
+							
 							try {
 								modelList.remove(modelList.getSize() - 1);
 							} catch(Exception e) {
@@ -201,12 +200,12 @@ public class LeftComponents extends JPanel {
 							
 							// TODO Auto-generated method stub
 							for (UserAccountData d : users) {
-			                    userAccount.add(d);
-			                    modelList.addElement(new AccountComponent(d.getUserName()));
+			                    ListUsersAccountData.getInstance().add(d);
+			                    modelList.addElement(new AccountComponent(d.getUserName(), d));
 //			                    refreshMenuList();
 			                }
 							try {
-								modelList.addElement(new AccountComponent(users.get(users.size() - 1).getUserName()));
+								modelList.addElement(new AccountComponent(users.get(users.size() - 1).getUserName(), users.get(users.size() - 1)));
 							} catch(Exception e) {
 							}
 							

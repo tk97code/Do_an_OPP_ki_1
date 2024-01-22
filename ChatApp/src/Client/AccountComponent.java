@@ -8,12 +8,15 @@ import javax.swing.*;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import Data.UserAccountData;
 import TheSedativePackage.ImageLoader;
 import TheSedativePackage.RoundedBorder;
 
 public class AccountComponent extends JPanel {
 	private String userName;
 	private JLabel lblName;
+	
+	private UserAccountData toUser;
 	
 	private String message = "You: hello world";
 	protected JLabel lblMessage;
@@ -29,9 +32,14 @@ public class AccountComponent extends JPanel {
 		return userName;
 	}
 	
-	public AccountComponent(String userName) {
+	public UserAccountData getToUser() {
+		return toUser;
+	}
+	
+	public AccountComponent(String userName, UserAccountData toUser) {
 //        setPreferredSize(new Dimension(290, 70));
 		this.userName = userName;
+		this.toUser = toUser;
         setBackground(Color.white);
         setLayout(null);
         setBorder(new RoundedBorder(new Color(0, 0, 0, 50), 1, 20));

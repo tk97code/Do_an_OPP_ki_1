@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import Client.LeftComponents;
+import Client.RightComponents;
+import Data.ListUsersAccountData;
+import Data.ReceiveMessageData;
 import Data.UserAccountData;
 import io.socket.client.*;
 import io.socket.emitter.Emitter;
@@ -19,6 +23,7 @@ public class ClientService {
 	private static Socket client;
 	private String ip = "localhost";
 	private static UserAccountData user;
+	private RightComponents right;
 	
 	public static ClientService getInstance() {
         if (instance == null) {
@@ -34,17 +39,31 @@ public class ClientService {
 	public void startServer() {
         try {
             client = IO.socket("http://" + ip + ":" + port);
+            
             Event.getInstance().addEventUserStatus(new EventUserStatus() {
 				
 				@Override
 				public void userDisconnect(int userId) {
 					System.out.println("Offline " + userId);
+					for (UserAccountData u : ListUsersAccountData.getInstance().getList()) {
+	                    if (u.getUserID() == userId) {
+	                        u.setStatus(false);
+//	                        RightComponents.getInstance().updateOnline();
+	                        break;
+	                    }
+	                }
+//					RightComponents.getInstance().updateOffline();
 				}
 				
 				@Override
 				public void userConnect(int userId) {
-					System.out.println("Online " + userId);
-					
+					for (UserAccountData u: ListUsersAccountData.getInstance().getList()) {
+						if (u.getUserID() == userId) {
+	                        u.setStatus(true);
+	                        System.out.println("Online " + userId);
+	                        break;
+	                    }
+					}
 				}
 			});
             
@@ -63,8 +82,8 @@ public class ClientService {
                     	} catch (Exception e) {
                     		
                     	}
-                    	
                     }
+                    
                     try {
                     	ClientEvent.Event.getInstance().getEventMenuLeft().listUser(users);
                     } catch (Exception e) {
@@ -85,6 +104,14 @@ public class ClientService {
 //                    	System.out.println(userID);
                         ClientEvent.Event.getInstance().getEventUserStatus().userDisconnect(userID);
                     }
+                }
+            });
+            
+            client.on("receive_ms", new Emitter.Listener() {
+                @Override
+                public void call(Object... os) {
+                    ReceiveMessageData message = new ReceiveMessageData(os[0]);
+                    Event.getInstance().getEventChat().receiveMessage(message);
                 }
             });
             client.open();

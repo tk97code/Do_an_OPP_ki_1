@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import ClientEvent.Event;
 import ClientEvent.EventMenuRight;
+import Data.UserAccountData;
 import Login.ClientService;
 import io.socket.client.*;
 
@@ -57,12 +58,12 @@ public class ClientFrame extends JFrame {
 		
 		Event.getInstance().addEventMenuRight(new EventMenuRight() {
 			@Override
-			public void loadRightComponents(String name) {
+			public void loadRightComponents(String name, UserAccountData toUser) {
 				welcome.setVisible(false);
 				if (right != null) {
 					remove(right);
 				}
-				right = new RightComponents(name);
+				right = new RightComponents(name, toUser);
 				add(right);
 				revalidate();
 				repaint();

@@ -6,12 +6,22 @@ import javax.swing.border.MatteBorder;
 import javax.swing.plaf.PanelUI;
 import javax.swing.text.DefaultEditorKit;
 
+import ClientEvent.Event;
+import ClientEvent.EventChat;
+import Data.ListUsersAccountData;
+import Data.MessageData;
+import Data.ReceiveMessageData;
+import Data.SendMessageData;
+import Data.UserAccountData;
+import Login.ClientService;
 import TheSedativePackage.ImageLoader;
 import TheSedativePackage.ModernScrollBarUI;
 import TheSedativePackage.RoundedBorder;
 import TheSedativePackage.ScrollablePanel;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
 import java.awt.event.FocusEvent;
@@ -32,19 +42,68 @@ public class RightComponents extends JPanel {
 	private Font _ManropeSemiBold15 = new Font("Manrope SemiBold", Font.PLAIN, 15);
 	
 	private String userName;
+	private UserAccountData toUser;
+	private static RightComponents instance;
+	private static ReceiverUserPanel receiverPanel;
+	
+	private ChatPanel chat;
 	
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
 	
-	public RightComponents(String userName) {
+	public static RightComponents getInstance() {
+		if (instance == null) {
+			instance = new RightComponents("", null);
+		}
+		return instance;
+	}
+	
+	public ChatPanel getChat() {
+		return chat;
+	}
+	
+	public void updateOnline() {
+		receiverPanel.lblStatus.setText("Online");
+		receiverPanel.lblStatus.setForeground(new Color(124, 124, 124));
+		receiverPanel.repaint();
+		receiverPanel.revalidate();
+	}
+	
+	public void updateOffline() {
+		receiverPanel.lblStatus.setText("Offline");
+		receiverPanel.lblStatus.setForeground(new Color(124, 124, 124));
+		receiverPanel.repaint();
+		receiverPanel.revalidate();
+	}
+	
+	public RightComponents(String userName, UserAccountData toUser) {
 		this.userName = userName;
+		this.toUser = toUser;
+		receiverPanel = new ReceiverUserPanel();
+		chat = new ChatPanel();
+		
+		Event.getInstance().addEventChat(new EventChat() {
+            @Override
+            public void sendMessage(SendMessageData data) {
+//                chatBody.addItemRight(data);
+            	chat.addSendMessage(data.getText());
+            }
+
+            @Override
+            public void receiveMessage(ReceiveMessageData data) {
+                if (toUser.getUserID() == data.getFromUserID()) {
+                	chat.addReceiveMessage(data.getText());
+                }
+            }
+        });
 		
 		setBounds(340, 0, 885, 860);
 		setLayout(null);
 		
-		add(new ReceiverUserPanel());
-		add(new ChatPanel());
+		add(receiverPanel);
+		updateOnline();
+		add(chat);
 		add(new InputMessagePanel());
 	}
 	
@@ -53,6 +112,7 @@ public class RightComponents extends JPanel {
 		private Image avtURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\0.jpg");
 		private Image avt = avtURL.getScaledInstance(55, 55, Image.SCALE_SMOOTH);
 		private ImageLoader avtImg;
+		private JLabel lblStatus;
 		
 		
 		
@@ -60,25 +120,33 @@ public class RightComponents extends JPanel {
 			setLayout(null);
 			setBounds(0, 0, 885, 100);
 			setBackground(_primaryWhite);
-//			setBorder(new MatteBorder(0, 0, 2, 2, new Color(0, 0, 0, 51)));
+			setBorder(new MatteBorder(0, 0, 2, 2, new Color(0, 0, 0, 51)));
+			
+			
 //			add(userPanel);
+			lblStatus = new JLabel();
+			lblStatus.setText("Offline");
+			lblStatus.setFont(_ManropeSemiBold15);
+			lblStatus.setForeground(new Color(124, 124, 124));
+			lblStatus.setBounds(105, 50, 230, 25);
+			add(lblStatus);
+			
 			
 			avtImg = new ImageLoader(avt);
 			avtImg.setBounds(35, 26, 50, 50);
 			avtImg.setBorder(new RoundedBorder(new Color(175, 187, 247), 2, 100));
 			add(avtImg);
 			
-			
 			lblReceiver = new JLabel();
 			lblReceiver.setText(userName);
 			lblReceiver.setForeground(Color.black);
-			lblReceiver.setBounds(105, 40, 230, 25);
+			lblReceiver.setBounds(105, 30, 230, 25);
 			lblReceiver.setFont(_ManropeExtraBold20);
 			add(lblReceiver);
 		}
 	}
 	
-	class ChatPanel extends JPanel {
+	public class ChatPanel extends JPanel {
 		
 		private ScrollablePanel contentPanel;
 		private JScrollPane scrollPane;
@@ -136,7 +204,7 @@ public class RightComponents extends JPanel {
 		}
 		
 		public void addReceiveMessage(String msg) {
-			gbc.gridy = row++;
+			gbc.gridy = row++;	
 			
 			JPanel p = new JPanel( new FlowLayout(FlowLayout.LEFT) );
             p.setBorder( new EmptyBorder(10, 10, 10, 10) );
@@ -218,8 +286,11 @@ public class RightComponents extends JPanel {
 	        	@Override
 	        	public void mousePressed(MouseEvent e) {
 	        		// TODO Auto-generated method stub
-	        		addReceiveMessage("ádfasdfasdf");
-	    	        addSendMessage("lorem");
+	        		for (UserAccountData u: ListUsersAccountData.getInstance().getList()) {
+	        			addSendMessage(u.getUserID() + "\n" + u.getUserName() + "\n" + u.isStatus() + "\n");
+	        		}
+//	        		addReceiveMessage("ádfasdfasdf");
+//	    	        addSendMessage("lorem");
 	        		super.mousePressed(e);
 	        	}
 	        });
@@ -236,6 +307,9 @@ public class RightComponents extends JPanel {
 		private Image sendIconURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\send_white.png");
 		private ImageIcon sendIcon = new ImageIcon(sendIconURL);
 		
+		private void send(SendMessageData data) {
+	        ClientService.getInstance().getClient().emit("send_to_user", data.toJsonObject());
+	    }
 		
 		public InputMessagePanel() {
 			setBounds(0, 782, 885, 80);
@@ -295,6 +369,20 @@ public class RightComponents extends JPanel {
 			btnSendMessage.setBorder(new RoundedBorder(new Color(91, 150, 247), 2, 15));
 			btnSendMessage.setLayout(null);
 			add(btnSendMessage);
+			
+			btnSendMessage.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					String text = inputMessage.getText();
+					SendMessageData message = new SendMessageData(ClientService.getInstance().getUser().getUserID(), toUser.getUserID(), text);
+					send(message);
+//					chat.addSendMessage(text);
+					Event.getInstance().getEventChat().sendMessage(message);
+					inputMessage.setText("");
+				}
+			});
 			
 			lblSendIcon = new JLabel();
 			lblSendIcon.setIcon(sendIcon);

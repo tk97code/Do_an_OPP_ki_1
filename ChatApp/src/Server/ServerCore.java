@@ -25,9 +25,12 @@ import com.corundumstudio.socketio.transport.NamespaceClient;
 
 import ClientEvent.Event;
 import Data.ClientData;
+import Data.ListUsersAccountData;
 import Data.LoginData;
 import Data.MessageData;
+import Data.ReceiveMessageData;
 import Data.RegisterData;
+import Data.SendMessageData;
 import Data.UserAccountData;
 
 public class ServerCore {
@@ -110,11 +113,19 @@ public class ServerCore {
             @Override
             public void onData(SocketIOClient client, Integer userReqID, AckRequest req) throws Exception {
                 try {
-                    List<UserAccountData> list = dbService.getOnlineUser(userReqID);
+                    List<UserAccountData> list = dbService.getUsers(userReqID);
                     client.sendEvent("list_user", list.toArray());
                 } catch (SQLException e) {
                     System.err.println(e);
                 }
+            }
+        });
+		
+		server.addEventListener("send_to_user", SendMessageData.class, new DataListener<SendMessageData>() {
+            @Override
+            public void onData(SocketIOClient sioc, SendMessageData msg, AckRequest ar) throws Exception {
+            	dbService.saveToDB(msg);
+                sendToUser(msg);
             }
         });
 		
@@ -133,6 +144,7 @@ public class ServerCore {
 		logArea.setForeground(Color.green);
 		appendLog("SERVER IS STARTED \n", Color.green);
 	}
+
 	
 	public void stopServer() {
 		server.stop();
@@ -142,6 +154,15 @@ public class ServerCore {
 	
 	public void addClient(SocketIOClient client, UserAccountData user) {
 		listClient.add(new ClientData(client, user));
+	}
+	
+	public void sendToUser(SendMessageData msg) {
+		for (ClientData c : listClient) {
+            if (c.getUser().getUserID() == msg.getToUserID()) {
+                c.getClient().sendEvent("receive_ms", new ReceiveMessageData(msg.getFromUserID(), msg.getText()));
+                break;
+            }
+        }
 	}
 	
 	public int removeClient(SocketIOClient client) {

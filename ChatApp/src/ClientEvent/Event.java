@@ -6,6 +6,7 @@ public class Event {
 	private EventMenuLeft eventMenuLeft;
 	private EventMenuRight eventMenuRight;
 	private EventUserStatus eventUserStatus;
+	private EventChat eventChat;
 
     public static Event getInstance() {
         if (instance == null) {
@@ -44,6 +45,14 @@ public class Event {
 
     public EventUserStatus getEventUserStatus() {
     	return eventUserStatus;
+    }
+    
+    public void addEventChat(EventChat event) {
+        this.eventChat = event;
+    }
+    
+    public EventChat getEventChat() {
+        return eventChat;
     }
     
 }

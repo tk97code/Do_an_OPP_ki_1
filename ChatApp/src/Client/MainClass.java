@@ -15,6 +15,7 @@ public class MainClass {
 		    public void run() {
 		        ClientService.getInstance().startServer();
 //		        ClientFrame clientFrame = new ClientFrame();
+		        
 		        LoginFrame loginFrame = new LoginFrame();
 //		        clientFrame.setVisible(true);
 		        loginFrame.setVisible(true);

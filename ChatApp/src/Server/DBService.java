@@ -10,6 +10,7 @@ import java.util.List;
 import Data.LoginData;
 import Data.MessageData;
 import Data.RegisterData;
+import Data.SendMessageData;
 import Data.UserAccountData;
 
 public class DBService {
@@ -20,7 +21,8 @@ public class DBService {
     private String CHECK_EMAIL = "SELECT userID FROM users WHERE email = ? LIMIT 1";
     private String LOGIN = "SELECT UserID, users_account.UserName, users_account.email, imageString FROM users JOIN users_account USING (UserID) WHERE users.email=BINARY(?) AND users.pass=BINARY(?) AND users_account.status='1'";
 	private String INSERT_USER_ACCOUNT = "INSERT INTO users_account(userID, username, email) VALUES (?, ?, ?)";
-    private String SELECT_ONLINE_USER = "SELECT userID, username, email, imageString FROM users_account WHERE status='1' AND UserID<>?";
+    private String SELECT_USERS = "SELECT userID, username, email, imageString FROM users_account WHERE status='1' AND UserID<>?";
+    private String SAVE_TO_DB = "INSERT INTO messages(fromUserId, toUserId, msg) VALUES (?, ?, ?)";
 	
 	public DBService() {
 		this.con = DBConnection.getInstance().getConnection();
@@ -93,6 +95,15 @@ public class DBService {
 		return message;
 	}
 	
+	public void saveToDB(SendMessageData msg) throws SQLException{
+		PreparedStatement stmt = con.prepareStatement(SAVE_TO_DB);
+		stmt.setInt(1, msg.getFromUserID());
+		stmt.setInt(2, msg.getToUserID());
+		stmt.setString(3, msg.getText());
+		stmt.execute();
+		stmt.close();
+	}
+	
 	public UserAccountData login(LoginData loginData) throws SQLException {
 		UserAccountData data = null;
         PreparedStatement stmt = con.prepareStatement(LOGIN);
@@ -112,9 +123,9 @@ public class DBService {
         return data;
     }
 	
-	public List<UserAccountData> getOnlineUser(int userReqID) throws SQLException {
+	public List<UserAccountData> getUsers(int userReqID) throws SQLException {
 		List<UserAccountData> list = new ArrayList<>();
-        PreparedStatement stmt = con.prepareStatement(SELECT_ONLINE_USER);
+        PreparedStatement stmt = con.prepareStatement(SELECT_USERS);
         stmt.setInt(1, userReqID);
         ResultSet resultSet = stmt.executeQuery();
         while (resultSet.next()) {
@@ -123,7 +134,7 @@ public class DBService {
             String email = resultSet.getString(3);
             String image = resultSet.getString(4);
 //            System.out.println(email);
-            list.add(new UserAccountData(userID, userName, email, image, true));
+            list.add(new UserAccountData(userID, userName, email, image, false));
         }
         resultSet.close();
         stmt.close();
