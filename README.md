@@ -12,7 +12,10 @@ A project chatapp
 ## Demo
 
 Video demo
-https://github.com/tk97code/tk97code/blob/main/2024-01-22%2022-46-56.mov
+<video>
+  <source src="https://github.com/tk97code/tk97code/blob/main/2024-01-22%2022-46-56.mov" type="video/mov"></source>
+</video>
+
 
 ## Tech Stack
 
