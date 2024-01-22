@@ -38,6 +38,17 @@ public class SendMessageData {
         this.toUserID = toUserID;
         this.text = text;
     }
+    
+    public SendMessageData(Object o) {
+    	JSONObject obj = (JSONObject) o;
+        try {
+        	fromUserID = obj.getInt("fromUserID");
+        	toUserID = obj.getInt("toUserID");
+        	text = obj.getString("text");
+        } catch (JSONException e) {
+            System.err.println(e);
+        }
+    }
 
     public SendMessageData() {
     }

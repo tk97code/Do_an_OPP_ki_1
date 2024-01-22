@@ -58,6 +58,8 @@ import org.jdesktop.swingx.graphics.ShadowRenderer;
 import ClientEvent.Event;
 import ClientEvent.EventMenuLeft;
 import Data.ListUsersAccountData;
+import Data.RequestChatData;
+import Data.SendMessageData;
 import Data.UserAccountData;
 import Login.ClientService;
 

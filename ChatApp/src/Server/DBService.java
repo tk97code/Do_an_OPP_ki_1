@@ -10,6 +10,7 @@ import java.util.List;
 import Data.LoginData;
 import Data.MessageData;
 import Data.RegisterData;
+import Data.RequestChatData;
 import Data.SendMessageData;
 import Data.UserAccountData;
 
@@ -23,7 +24,8 @@ public class DBService {
 	private String INSERT_USER_ACCOUNT = "INSERT INTO users_account(userID, username, email) VALUES (?, ?, ?)";
     private String SELECT_USERS = "SELECT userID, username, email, imageString FROM users_account WHERE status='1' AND UserID<>?";
     private String SAVE_TO_DB = "INSERT INTO messages(fromUserId, toUserId, msg) VALUES (?, ?, ?)";
-	
+	private String SELECT_MESSAGE = "SELECT * FROM messages WHERE ? IN (fromUserId, toUserId) AND ? IN (fromUserId, toUserId)";
+    
 	public DBService() {
 		this.con = DBConnection.getInstance().getConnection();
 	}
@@ -95,13 +97,30 @@ public class DBService {
 		return message;
 	}
 	
-	public void saveToDB(SendMessageData msg) throws SQLException{
+	public void saveToDB(SendMessageData msg) throws SQLException {
 		PreparedStatement stmt = con.prepareStatement(SAVE_TO_DB);
 		stmt.setInt(1, msg.getFromUserID());
 		stmt.setInt(2, msg.getToUserID());
 		stmt.setString(3, msg.getText());
 		stmt.execute();
 		stmt.close();
+	}
+	
+	public List<SendMessageData> getMessage(RequestChatData data) throws SQLException {
+		List<SendMessageData> listMessage = new ArrayList<>();
+		PreparedStatement stmt = con.prepareStatement(SELECT_MESSAGE);
+		stmt.setInt(1, data.getFromUserId());
+		stmt.setInt(2, data.getToUserId());
+		ResultSet resultSet = stmt.executeQuery();
+		while (resultSet.next()) {
+            int messageId = resultSet.getInt(1);
+            int fromUserId = resultSet.getInt(2);
+            int toUserId = resultSet.getInt(3);
+            String message = resultSet.getString(4);
+//            System.out.println(email);
+            listMessage.add(new SendMessageData(fromUserId, toUserId, message));
+        }
+		return listMessage;
 	}
 	
 	public UserAccountData login(LoginData loginData) throws SQLException {

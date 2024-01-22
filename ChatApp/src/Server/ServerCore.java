@@ -30,6 +30,7 @@ import Data.LoginData;
 import Data.MessageData;
 import Data.ReceiveMessageData;
 import Data.RegisterData;
+import Data.RequestChatData;
 import Data.SendMessageData;
 import Data.UserAccountData;
 
@@ -63,7 +64,6 @@ public class ServerCore {
 
 	public void startServer() {
 		dbService = new DBService();
-		
 		
 		server.addConnectListener(new ConnectListener() {
             @Override
@@ -121,13 +121,27 @@ public class ServerCore {
             }
         });
 		
+		server.addEventListener("load_chat", RequestChatData.class, new DataListener<RequestChatData>() {
+			@Override
+			public void onData(SocketIOClient client, RequestChatData data, AckRequest ar) throws Exception {
+//				System.out.println("asdfs");
+				System.out.println(data.getFromUserId() + "->" + data.getToUserId());
+				List<SendMessageData> list = dbService.getMessage(data);
+				ar.sendAckData(list.toArray());
+//				for (SendMessageData s: list) {
+//					System.out.println(s.getFromUserID() + ": " + s.getText());
+//				}
+			}
+		});
+		
 		server.addEventListener("send_to_user", SendMessageData.class, new DataListener<SendMessageData>() {
             @Override
-            public void onData(SocketIOClient sioc, SendMessageData msg, AckRequest ar) throws Exception {
+            public void onData(SocketIOClient client, SendMessageData msg, AckRequest ar) throws Exception {
             	dbService.saveToDB(msg);
                 sendToUser(msg);
             }
         });
+		
 		
 		server.addDisconnectListener(new DisconnectListener() {
 			@Override

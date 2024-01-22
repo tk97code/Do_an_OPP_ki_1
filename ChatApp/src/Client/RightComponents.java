@@ -11,6 +11,7 @@ import ClientEvent.EventChat;
 import Data.ListUsersAccountData;
 import Data.MessageData;
 import Data.ReceiveMessageData;
+import Data.RequestChatData;
 import Data.SendMessageData;
 import Data.UserAccountData;
 import Login.ClientService;
@@ -18,6 +19,7 @@ import TheSedativePackage.ImageLoader;
 import TheSedativePackage.ModernScrollBarUI;
 import TheSedativePackage.RoundedBorder;
 import TheSedativePackage.ScrollablePanel;
+import io.socket.client.Ack;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -31,6 +33,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.util.*;
+import java.util.List;
 
 public class RightComponents extends JPanel {
 
@@ -45,8 +49,11 @@ public class RightComponents extends JPanel {
 	private UserAccountData toUser;
 	private static RightComponents instance;
 	private static ReceiverUserPanel receiverPanel;
-	
 	private ChatPanel chat;
+	private InputMessagePanel inputMessage;
+	private RequestChatData requestMsg;
+
+	
 	
 	public void setUserName(String userName) {
 		this.userName = userName;
@@ -77,11 +84,38 @@ public class RightComponents extends JPanel {
 		receiverPanel.revalidate();
 	}
 	
+	private void loadChat(RequestChatData data) {
+        ClientService.getInstance().getClient().emit("load_chat", data.toJsonObject(), new Ack() {
+			
+			@Override
+			public void call(Object... data) {
+				List<SendMessageData> list = new ArrayList<>();
+				
+				for (Object o : data) {
+                	SendMessageData msg = new SendMessageData(o);
+//                	System.out.println(o);
+                	try {
+                		if (msg.getFromUserID() == ClientService.getInstance().getUser().getUserID()) {
+                			chat.addSendMessage(msg.getText());
+						} else {
+							chat.addReceiveMessage(msg.getText());
+						}
+                	} catch (Exception e) {
+                		
+                	}
+                }
+				
+			}
+		});
+    }
+	
 	public RightComponents(String userName, UserAccountData toUser) {
 		this.userName = userName;
 		this.toUser = toUser;
 		receiverPanel = new ReceiverUserPanel();
 		chat = new ChatPanel();
+		inputMessage = new InputMessagePanel();
+		RequestChatData requestMsg = new RequestChatData(ClientService.getInstance().getUser().getUserID(), toUser.getUserID());
 		
 		Event.getInstance().addEventChat(new EventChat() {
             @Override
@@ -100,11 +134,11 @@ public class RightComponents extends JPanel {
 		
 		setBounds(340, 0, 885, 860);
 		setLayout(null);
-		
 		add(receiverPanel);
-		updateOnline();
 		add(chat);
-		add(new InputMessagePanel());
+		add(inputMessage);
+		
+    	loadChat(requestMsg);
 	}
 	
 	class ReceiverUserPanel extends JPanel {
@@ -113,7 +147,6 @@ public class RightComponents extends JPanel {
 		private Image avt = avtURL.getScaledInstance(55, 55, Image.SCALE_SMOOTH);
 		private ImageLoader avtImg;
 		private JLabel lblStatus;
-		
 		
 		
 		public ReceiverUserPanel() {
@@ -374,7 +407,6 @@ public class RightComponents extends JPanel {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
 					String text = inputMessage.getText();
 					SendMessageData message = new SendMessageData(ClientService.getInstance().getUser().getUserID(), toUser.getUserID(), text);
 					send(message);

@@ -10,6 +10,7 @@ import Client.LeftComponents;
 import Client.RightComponents;
 import Data.ListUsersAccountData;
 import Data.ReceiveMessageData;
+import Data.RequestChatData;
 import Data.UserAccountData;
 import io.socket.client.*;
 import io.socket.emitter.Emitter;
@@ -114,6 +115,7 @@ public class ClientService {
                     Event.getInstance().getEventChat().receiveMessage(message);
                 }
             });
+            
             client.open();
         } catch (URISyntaxException e) {
             e.printStackTrace();
