@@ -5,7 +5,6 @@ public class Event {
 	private EventLogin eventLogin;
 	private EventMenuLeft eventMenuLeft;
 	private EventMenuRight eventMenuRight;
-	private EventUserStatus eventUserStatus;
 	private EventChat eventChat;
 
     public static Event getInstance() {
@@ -37,14 +36,6 @@ public class Event {
 
     public EventMenuRight getEventMenuRight() {
     	return eventMenuRight;
-    }
-    
-    public void addEventUserStatus(EventUserStatus event) {
-    	this.eventUserStatus = event;
-    }
-
-    public EventUserStatus getEventUserStatus() {
-    	return eventUserStatus;
     }
     
     public void addEventChat(EventChat event) {

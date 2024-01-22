@@ -18,8 +18,8 @@ public class AccountComponent extends JPanel {
 	
 	private UserAccountData toUser;
 	
-	private String message = "You: hello world";
-	protected JLabel lblMessage;
+	private String status;
+	protected JLabel lblStatus;
 	
 	private ImageLoader avtImg;
 	private Image avtURL = Toolkit.getDefaultToolkit().getImage("src\\Image\\0.jpg");
@@ -36,6 +36,10 @@ public class AccountComponent extends JPanel {
 		return toUser;
 	}
 	
+	public JLabel getLblName() {
+		return lblName;
+	}
+	
 	public AccountComponent(String userName, UserAccountData toUser) {
 //        setPreferredSize(new Dimension(290, 70));
 		this.userName = userName;
@@ -45,6 +49,7 @@ public class AccountComponent extends JPanel {
         setBorder(new RoundedBorder(new Color(0, 0, 0, 50), 1, 20));
         
         avtImg = new ImageLoader(avt);
+        avtImg.repaint();
 		avtImg.setBounds(10, 12, 45, 45);
         avtImg.setPreferredSize(new Dimension(45, 45));
 		avtImg.setBorder(new RoundedBorder(new Color(175, 187, 247), 1, 100));
@@ -55,9 +60,19 @@ public class AccountComponent extends JPanel {
         lblName.setFont(_ManropeExtraBold16);
         add(lblName);
         
-        lblMessage = new JLabel(message);
-        lblMessage.setBounds(avtImg.getX() + avtImg.getWidth() + 15, lblName.getHeight() + lblName.getY() + 5, 175, 17);
-        lblMessage.setFont(_ManropeSemiBold13);
-        add(lblMessage);
+        lblStatus = new JLabel();
+        if (toUser.getStatus()) {
+        	status = "Online";
+        	lblStatus.setForeground(new Color(118, 212, 94));
+        } else {
+        	status = "Offline";
+        	lblStatus.setForeground(new Color(105, 105, 105));
+        }
+        lblStatus.setText(status);
+        
+        lblStatus.setBounds(avtImg.getX() + avtImg.getWidth() + 15, lblName.getHeight() + lblName.getY() + 5, 175, 15);
+        lblStatus.setFont(new Font("Manrope Bold", Font.PLAIN, 14));
+        add(lblStatus);
+
 	}
 }

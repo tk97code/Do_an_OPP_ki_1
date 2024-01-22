@@ -22,6 +22,8 @@ import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.geom.Area;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
@@ -30,9 +32,13 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 public class ServerFrame extends JFrame {
+	private static ServerFrame instance;
+	
 	/* Server Info Panel */
 	private JPanel serverInfoPanel;
 	
@@ -49,17 +55,17 @@ public class ServerFrame extends JFrame {
 	private JButton btnStopServer;
 	private JLabel lblTextButtonServer;
 	
-	private JPanel uptimePanel;
-	private JLabel lblUpTime;
-	private JLabel lblUptimeValue;
-	
 	private JPanel startTimePanel;
 	private JLabel lblStartTime;
 	private JLabel lblStartTimeValue;
 	
-	private JPanel connectedClientPanel;
-	private JLabel lblConnectedClient;
-	private JLabel lblNumbersConnectedClient;
+	private JPanel startDatePanel;
+	private JLabel lblStartDate;
+	private JLabel lblStartDateValue;
+	
+	private JPanel uptimePanel;
+	private JLabel lblUptime;
+	private JLabel lblUptimeValue;
 	
 	
 	/* Log */
@@ -88,6 +94,11 @@ public class ServerFrame extends JFrame {
 	private int fWidth = 1065;
 	private int fHeight = 760;
 	
+	private Boolean isStop = false;
+	private int second = 0;
+	private int minute = 0;
+	private int hour = 0;
+	private Timer timer;
 	
 	/* Get Screen Size */
 	private GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -109,6 +120,31 @@ public class ServerFrame extends JFrame {
 		});
 	}
 	
+	public static ServerFrame getInstance() {
+		if (instance == null) {
+			instance = new ServerFrame();
+		}
+		return instance;
+	}
+	
+	private void updateTimer() {
+        second++;
+        if (second == 60) {
+            second = 0;
+            minute++;
+            if (minute == 60) {
+                minute = 0;
+                hour++;
+            }
+        }
+        updateTimerLabel();
+    }
+	
+	private void updateTimerLabel() {
+        String formattedTime = String.format("%02d:%02d:%02d", hour, minute, second);
+//        System.out.println(second);
+        lblUptimeValue.setText(formattedTime);
+    }
 	
 	public ServerFrame() {
 		/* Main Frame */
@@ -119,6 +155,13 @@ public class ServerFrame extends JFrame {
 		setBounds((sWidth-fWidth)/2, (sHeight-fHeight)/2, fWidth, fHeight);
 		setLayout(null);
 		
+		timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTimer();
+            }
+        });
+		
 		/* Server Info Panel */
 		serverInfoPanel = new JPanel();
 //		serverInfoPanel.setOpaque(false);
@@ -127,7 +170,6 @@ public class ServerFrame extends JFrame {
 		serverInfoPanel.setLayout(null);
 		add(serverInfoPanel);
 		generateServerInfoComponents();
-		
 		
 		/* Run Server Button */
 		btnStartServer = new JButton();
@@ -143,6 +185,13 @@ public class ServerFrame extends JFrame {
             	try {
 					DBConnection.getInstance().connectToDatabase();
 					server.startServer();
+					DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");  
+					DateTimeFormatter hf = DateTimeFormatter.ofPattern("HH:mm:ss");
+					LocalDateTime now = LocalDateTime.now();  
+//					System.out.println(dtf.format(now));  
+					lblStartDateValue.setText(df.format(now));
+					lblStartTimeValue.setText(hf.format(now));
+					timer.start();
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -176,6 +225,7 @@ public class ServerFrame extends JFrame {
             	try {
 					DBConnection.getInstance().closeConnection();
 					server.stopServer();
+					timer.stop();
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -326,48 +376,70 @@ public class ServerFrame extends JFrame {
 		
 		
 		/* Uptime Panel */
-		uptimePanel = new JPanel();
-		uptimePanel.setLayout(null);
-//		uptimePanel.setOpaque(false);
-		uptimePanel.setBounds(0, ipPanel.getHeight() + 28, 205, 112);
-		uptimePanel.setBackground(_primaryPanelGrey);
-		uptimePanel.setBorder(new RoundedBorder(_primaryPanelGrey, 0, 30));
-		serverInfoPanel.add(uptimePanel);
-		
-		lblUpTime = new JLabel();
-		lblUpTime.setText("<html><font color='#FFFFFF'>Uptime:</font></html>");
-		lblUpTime.setBounds(24, 24, 157, 20);
-		lblUpTime.setFont(_Popins20);
-		uptimePanel.add(lblUpTime);
-		
-		
-		/* Start Time Panel */
 		startTimePanel = new JPanel();
 		startTimePanel.setLayout(null);
-		startTimePanel.setBounds(uptimePanel.getWidth()+28, ipPanel.getHeight() + 28, 205, 112);
+//		uptimePanel.setOpaque(false);
+		startTimePanel.setBounds(0, ipPanel.getHeight() + 28, 205, 112);
 		startTimePanel.setBackground(_primaryPanelGrey);
 		startTimePanel.setBorder(new RoundedBorder(_primaryPanelGrey, 0, 30));
 		serverInfoPanel.add(startTimePanel);
 		
 		lblStartTime = new JLabel();
-		lblStartTime.setText("<html><font color='#FFFFFF'>Start Time:</font></html>");
+		lblStartTime.setText("<html><font color='#FFFFFF'>Start time:</font></html>");
 		lblStartTime.setBounds(24, 24, 157, 20);
 		lblStartTime.setFont(_Popins20);
 		startTimePanel.add(lblStartTime);
 		
+		lblStartTimeValue = new JLabel();
+		lblStartTimeValue.setForeground(Color.white);
+		lblStartTimeValue.setText("00:00:00");
+		lblStartTimeValue.setBounds(24, 60, 157, 25);
+		lblStartTimeValue.setFont(new Font("SVN-Poppins", Font.BOLD, 25));
+		startTimePanel.add(lblStartTimeValue);
+		
+		
+		/* Start Time Panel */
+		startDatePanel = new JPanel();
+		startDatePanel.setLayout(null);
+		startDatePanel.setBounds(startTimePanel.getWidth()+28, ipPanel.getHeight() + 28, 205, 112);
+		startDatePanel.setBackground(_primaryPanelGrey);
+		startDatePanel.setBorder(new RoundedBorder(_primaryPanelGrey, 0, 30));
+		serverInfoPanel.add(startDatePanel);
+		
+		lblStartDate = new JLabel();
+		lblStartDate.setText("<html><font color='#FFFFFF'>Start Date:</font></html>");
+		lblStartDate.setBounds(24, 24, 157, 20);
+		lblStartDate.setFont(_Popins20);
+		startDatePanel.add(lblStartDate);
+		
+		lblStartDateValue = new JLabel();
+		lblStartDateValue.setForeground(Color.white);
+		lblStartDateValue.setText("00/00/0000");
+		lblStartDateValue.setBounds(24, 60, 157, 25);
+		lblStartDateValue.setFont(new Font("SVN-Poppins", Font.BOLD, 25));
+		startDatePanel.add(lblStartDateValue);
+		
 		
 		/* Connected Client Panel */
-		connectedClientPanel = new JPanel();
-		connectedClientPanel.setLayout(null);
-		connectedClientPanel.setBounds((uptimePanel.getWidth()+28) * 2, ipPanel.getHeight() + 28, 205, 112);
-		connectedClientPanel.setBackground(_primaryPanelGrey);
-		connectedClientPanel.setBorder(new RoundedBorder(_primaryPanelGrey, 0, 30));
-		serverInfoPanel.add(connectedClientPanel);
+		uptimePanel = new JPanel();
+		uptimePanel.setLayout(null);
+		uptimePanel.setBounds((startTimePanel.getWidth()+28) * 2, ipPanel.getHeight() + 28, 205, 112);
+		uptimePanel.setBackground(_primaryPanelGrey);
+		uptimePanel.setBorder(new RoundedBorder(_primaryPanelGrey, 0, 30));
+		serverInfoPanel.add(uptimePanel);
 		
-		lblConnectedClient = new JLabel();
-		lblConnectedClient.setText("<html><font color='#FFFFFF'>Clients:</font></html>");
-		lblConnectedClient.setBounds(24, 24, 157, 20);
-		lblConnectedClient.setFont(_Popins20);
-		connectedClientPanel.add(lblConnectedClient);
+		lblUptimeValue = new JLabel();
+		lblUptimeValue.setForeground(Color.white);
+		lblUptimeValue.setText("0");
+		lblUptimeValue.setBounds(24, 60, 157, 25);
+		lblUptimeValue.setFont(new Font("SVN-Poppins", Font.BOLD, 25));
+		uptimePanel.add(lblUptimeValue);
+		
+		lblUptime = new JLabel();
+		lblUptime.setText("<html><font color='#FFFFFF'>Uptime:</font></html>");
+		lblUptime.setBounds(24, 24, 157, 20);
+		lblUptime.setFont(_Popins20);
+		uptimePanel.add(lblUptime);
+		
 	}
 }

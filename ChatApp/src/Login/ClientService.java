@@ -40,34 +40,6 @@ public class ClientService {
 	public void startServer() {
         try {
             client = IO.socket("http://" + ip + ":" + port);
-            
-            Event.getInstance().addEventUserStatus(new EventUserStatus() {
-				
-				@Override
-				public void userDisconnect(int userId) {
-					System.out.println("Offline " + userId);
-					for (UserAccountData u : ListUsersAccountData.getInstance().getList()) {
-	                    if (u.getUserID() == userId) {
-	                        u.setStatus(false);
-//	                        RightComponents.getInstance().updateOnline();
-	                        break;
-	                    }
-	                }
-//					RightComponents.getInstance().updateOffline();
-				}
-				
-				@Override
-				public void userConnect(int userId) {
-					for (UserAccountData u: ListUsersAccountData.getInstance().getList()) {
-						if (u.getUserID() == userId) {
-	                        u.setStatus(true);
-	                        System.out.println("Online " + userId);
-	                        break;
-	                    }
-					}
-				}
-			});
-            
             client.on("list_user", new Emitter.Listener() {
                 @Override
                 public void call(Object... os) {
@@ -93,20 +65,30 @@ public class ClientService {
                     
                 }
             });
-            client.on("user_status", new Emitter.Listener() {
-                @Override
-                public void call(Object... os) {
-                    int userID = (Integer) os[0];
-                    boolean status = (Boolean) os[1];
-                    if (status) {
-//                    	System.out.println(userID);
-                        ClientEvent.Event.getInstance().getEventUserStatus().userConnect(userID);
-                    } else {
-//                    	System.out.println(userID);
-                        ClientEvent.Event.getInstance().getEventUserStatus().userDisconnect(userID);
+            
+            client.on("update_status", new Emitter.Listener() {
+				@Override
+				public void call(Object... os) {
+					List<UserAccountData> users = new ArrayList<>();
+                    for (Object o : os) {
+                    	UserAccountData u = new UserAccountData(o);
+//                    	System.out.println(o);
+                    	try {
+                    		if (u.getUserID() != user.getUserID()) {
+    						    users.add(u);
+    						}
+                    		ClientEvent.Event.getInstance().getEventChat().updateStatus(u);
+                    	} catch (Exception e) {
+                    		
+                    	}
                     }
-                }
-            });
+                    
+                    try {
+                    	ClientEvent.Event.getInstance().getEventMenuLeft().listUser(users);
+                    } catch (Exception e) {
+                    }
+				}
+			});
             
             client.on("receive_ms", new Emitter.Listener() {
                 @Override

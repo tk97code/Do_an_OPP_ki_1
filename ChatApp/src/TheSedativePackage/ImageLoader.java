@@ -19,11 +19,10 @@ public class ImageLoader extends JPanel {
 	
 	@Override
 	protected void paintComponent(Graphics g) {
-		// TODO Auto-generated method stub
+		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
 		
-		super.paintComponent(g);
 		g2.drawImage(image, 0, 0, this);
 	}
 }

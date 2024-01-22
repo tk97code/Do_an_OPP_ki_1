@@ -20,6 +20,7 @@ import TheSedativePackage.ModernScrollBarUI;
 import TheSedativePackage.RoundedBorder;
 import TheSedativePackage.ScrollablePanel;
 import io.socket.client.Ack;
+import io.socket.emitter.Emitter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -72,14 +73,14 @@ public class RightComponents extends JPanel {
 	
 	public void updateOnline() {
 		receiverPanel.lblStatus.setText("Online");
-		receiverPanel.lblStatus.setForeground(new Color(124, 124, 124));
+		receiverPanel.lblStatus.setForeground(new Color(118, 212, 94));
 		receiverPanel.repaint();
 		receiverPanel.revalidate();
 	}
 	
 	public void updateOffline() {
 		receiverPanel.lblStatus.setText("Offline");
-		receiverPanel.lblStatus.setForeground(new Color(124, 124, 124));
+		receiverPanel.lblStatus.setForeground(new Color(105, 105, 105));
 		receiverPanel.repaint();
 		receiverPanel.revalidate();
 	}
@@ -130,6 +131,19 @@ public class RightComponents extends JPanel {
                 	chat.addReceiveMessage(data.getText());
                 }
             }
+            
+            @Override
+            public void updateStatus(UserAccountData user) {
+            	// TODO Auto-generated method stub
+            	if (user.getUserID() == toUser.getUserID()) {
+            		if (user.getStatus() == true) {
+            			updateOnline();
+            		} else {
+            			updateOffline();
+            		}
+            	}
+            	
+            }
         });
 		
 		setBounds(340, 0, 885, 860);
@@ -158,9 +172,9 @@ public class RightComponents extends JPanel {
 			
 //			add(userPanel);
 			lblStatus = new JLabel();
-			lblStatus.setText("Offline");
-			lblStatus.setFont(_ManropeSemiBold15);
-			lblStatus.setForeground(new Color(124, 124, 124));
+//			lblStatus.setText("Offline");
+			lblStatus.setFont(new Font("Manrope Bold", Font.PLAIN, 14));
+//			lblStatus.setForeground(new Color(105, 105, 105));
 			lblStatus.setBounds(105, 50, 230, 25);
 			add(lblStatus);
 			
@@ -218,18 +232,26 @@ public class RightComponents extends JPanel {
             };
             text.setOpaque(false);
             text.append(msg);
+            text.setFont(new Font("Manrope", Font.PLAIN, 15));
             text.setEditable(false);
-            text.setBorder(new EmptyBorder(10, 10, 10, 10));
+            text.setBorder(new EmptyBorder(15, 15, 15, 15));
             text.setForeground(Color.white);
             text.setBackground(new Color(91, 150, 247));
-//            text.setColumns(100);
             Canvas c = new Canvas();
             int w = c.getFontMetrics(text.getFont()).stringWidth(text.getText());
-            if (w > 1000) {
-            	text.setColumns(100);
+            if (w >= 100 && w < 200) {
+            	text.setColumns(10);
+            } else if (w >= 200 && w < 300) { 
+            	text.setColumns(20);
             }
-//            text.setMaximumSize(new Dimension(400, 100));
-            text.setBounds(30, 0, 300,300);
+            else if (w >= 300 && w < 500) {
+            	text.setColumns(30);
+            }
+            else if (w >= 500) {
+            	text.setColumns(50);
+            } else {
+            	text.setBounds(30, 0, 0, 0);
+            }
             text.setLineWrap( true );
             p.add(text, FlowLayout.LEFT);
             contentPanel.add(p, gbc);
@@ -267,17 +289,27 @@ public class RightComponents extends JPanel {
             text.setOpaque(false);
             text.append(msg);
             text.setEditable(false);
-            text.setBorder(new EmptyBorder(10, 10, 10, 10));
+            text.setFont(new Font("Manrope", Font.PLAIN, 15));
+            text.setBorder(new EmptyBorder(15, 15, 15, 15));
             text.setForeground(Color.black);
             text.setBackground(Color.white);
-//            text.setColumns(100);
             Canvas c = new Canvas();
             int w = c.getFontMetrics(text.getFont()).stringWidth(text.getText());
-            if (w > 1000) {
-            	text.setColumns(100);
+            
+            if (w >= 100 && w < 200) {
+            	text.setColumns(10);
+            } else if (w >= 200 && w < 300) { 
+            	text.setColumns(20);
             }
-//            text.setMaximumSize(new Dimension(400, 100));
-            text.setBounds(30, 0, 300,300);
+            else if (w >= 300 && w < 500) {
+            	text.setColumns(30);
+            }
+            else if (w >= 500) {
+            	text.setColumns(50);
+            } else {
+            	text.setBounds(30, 0, 0, 0);
+            }
+            text.setLayout(new BorderLayout());
             text.setLineWrap( true );
             p.add(text, FlowLayout.LEFT);
             contentPanel.add(p, gbc);
@@ -286,7 +318,6 @@ public class RightComponents extends JPanel {
 		
 		public ChatPanel() {
 			setBounds(0, 100, 885, 680);
-			setBackground(Color.red);
 			setLayout(null);
 			
 			contentPanel = new ScrollablePanel(new GridBagLayout());
@@ -315,18 +346,6 @@ public class RightComponents extends JPanel {
 	            }
 	        }); 
 	        
-	        scrollPane.addMouseListener(new MouseAdapter() {
-	        	@Override
-	        	public void mousePressed(MouseEvent e) {
-	        		// TODO Auto-generated method stub
-	        		for (UserAccountData u: ListUsersAccountData.getInstance().getList()) {
-	        			addSendMessage(u.getUserID() + "\n" + u.getUserName() + "\n" + u.isStatus() + "\n");
-	        		}
-//	        		addReceiveMessage("ádfasdfasdf");
-//	    	        addSendMessage("lorem");
-	        		super.mousePressed(e);
-	        	}
-	        });
 	        add(scrollPane);
 		}
 		

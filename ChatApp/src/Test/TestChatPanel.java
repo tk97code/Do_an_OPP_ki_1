@@ -2,6 +2,7 @@ package Test;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -35,9 +36,9 @@ public class TestChatPanel {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.getContentPane().setPreferredSize(new Dimension(1200, 800));
-        final JPanel content = new JPanel(new GridBagLayout());
-//        final ScrollablePanel content = new ScrollablePanel(new GridBagLayout());
-//        content.setScrollableWidth(ScrollablePanel.ScrollableSizeHint.FIT);
+//        final JPanel content = new JPanel(new GridBagLayout());
+        final ScrollablePanel content = new ScrollablePanel(new GridBagLayout());
+        content.setScrollableWidth(ScrollablePanel.ScrollableSizeHint.FIT);
         final GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridx = 0;
@@ -59,24 +60,25 @@ public class TestChatPanel {
         		// TODO Auto-generated method stub
         		gbc.gridy = row++;
         		
-                if (isRight) {
-	                
-	                JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT) );
-	                p.setBorder( new EmptyBorder(10, 10, 10, 10) );
-	                p.setBackground(new Color(0, 0, 0, 0));
-	                JTextArea text = new JTextArea();
-	                text.append("BCABCABCABCABCABCABCABC");
-	                text.setEditable(false);
-	                text.setBounds(0, 0, 300,300);
-	                text.setLineWrap( true );
-	                p.add(text);
-	                content.add(p, gbc);
-	                content.revalidate();
-	                isRight = false;
-                } else  {
+//                if (isRight) {
+//	                
+//	                JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT) );
+//	                p.setBorder( new EmptyBorder(10, 10, 10, 10) );
+//	                p.setBackground(new Color(0, 0, 0, 0));
+//	                JTextArea text = new JTextArea();
+//	                text.append("BCABCABCABCABCABCABCABC");
+//	                text.setEditable(false);
+//	                text.setBounds(0, 0,0 ,0);
+//	                text.setLineWrap( true );
+//	                p.add(text);
+//	                content.add(p, gbc);
+//	                content.revalidate();
+//	                isRight = false;
+//                } else  {
                 	String s = null;
                 	JPanel p = new JPanel( new FlowLayout(FlowLayout.RIGHT) );
                     p.setBorder( new EmptyBorder(10, 10, 10, 10) );
+                    
                     p.setBackground(Color.GRAY);
                     JTextArea text = new JTextArea() {
                     	@Override
@@ -101,25 +103,37 @@ public class TestChatPanel {
         				}
                     };
                     text.setOpaque(false);
-                    text.append(s);
-                    text.setEditable(false);
+//                    text.append(s);
+                    text.append("xin chao tat ca moi nguoi nha toi ten la");
+                    text.setEditable(true);
                     text.setBorder(new EmptyBorder(10, 10, 10, 10));
+//                    text.setBounds(0, 0,100 ,100);
                     text.setForeground(Color.white);
                     text.setBackground(new Color(91, 150, 247));
+                    text.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
 //                    text.setColumns(100);
+//                    text.setColumns(1);
                     Canvas c = new Canvas();
                     int w = c.getFontMetrics(text.getFont()).stringWidth(text.getText());
-                    if (w > 1000) {
-                    	text.setColumns(100);
+                    if (w >= 100 && w < 200) {
+                    	text.setColumns(30);
+                    } else if (w >= 200 && w < 400) { 
+                    	text.setColumns(40);
+                    }
+                    else if (w >= 400 && w < 1000) {
+                    	text.setColumns(50);
+                    }
+                    else if (w >= 1000) {
+                    	text.setColumns(70);
                     }
 //                    text.setMaximumSize(new Dimension(400, 100));
-                    text.setBounds(30, 0, 300,300);
+                    text.setBounds(30, 0, 0, 0);
                     text.setLineWrap( true );
                     p.add(text, FlowLayout.LEFT);
                     content.add(p, gbc);
                     content.revalidate();
                     isRight = true;
-                }
+//                }
         		super.mouseClicked(e);
         	}
         });

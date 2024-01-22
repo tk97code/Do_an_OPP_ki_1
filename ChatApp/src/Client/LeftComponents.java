@@ -164,6 +164,7 @@ public class LeftComponents extends JPanel {
 			            if (selectedComponent != null) {
 //			                System.out.println(selectedComponent.getUserName());
 			                Event.getInstance().getEventMenuRight().loadRightComponents(selectedComponent.getUserName(), selectedComponent.getToUser());
+			                Event.getInstance().getEventChat().updateStatus(selectedComponent.getToUser());
 			            }
 			        }
 			    }
@@ -192,7 +193,11 @@ public class LeftComponents extends JPanel {
 						@Override
 						public void run() {
 //							modelList.clear();
-							
+							if (modelList.size() > 0) {
+								modelList.clear();
+							}
+							showingPane.repaint();
+							showingPane.revalidate();
 							
 							try {
 								modelList.remove(modelList.getSize() - 1);
@@ -204,6 +209,7 @@ public class LeftComponents extends JPanel {
 							for (UserAccountData d : users) {
 			                    ListUsersAccountData.getInstance().add(d);
 			                    modelList.addElement(new AccountComponent(d.getUserName(), d));
+			                    showingPane.repaint();
 //			                    refreshMenuList();
 			                }
 							try {
@@ -248,7 +254,6 @@ public class LeftComponents extends JPanel {
 	        		  }
 	        	  }
 	        });
-	        
 	        listAccountPanel.add(showingPane);
 	        add(customScrollBar, BorderLayout.EAST);
 		}

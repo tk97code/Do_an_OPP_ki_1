@@ -61,6 +61,10 @@ public class ServerCore {
 		}
 		return instance;
 	}
+	
+	public SocketIOServer getServer() {
+		return server;
+	}
 
 	public void startServer() {
 		dbService = new DBService();
@@ -102,7 +106,9 @@ public class ServerCore {
                     req.sendAckData(true, accountData);
                     addClient(client, accountData);
                     appendLog("Client " + client.getSessionId() + " logged in successful \n", Color.white);
-                    userConnect(accountData.getUserID());
+                    server.getBroadcastOperations().sendEvent("update_status", dbService.getAllUsers().toArray());
+//                    server.getBroadcastOperations().sendEvent("update_status_connect", accountData.getUserID());
+//                    userConnect(accountData.getUserID());
                 } else {
                     req.sendAckData(false);
                 }
@@ -149,7 +155,12 @@ public class ServerCore {
 				appendLog("Client " + client.getSessionId() + " disconnected \n", Color.yellow);
 				int userID = removeClient(client);
                 if (userID != 0) {
-                    userDisconnect(userID);
+                	try {
+						dbService.setDisconnect(userID);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
                 }
 			}
 		});
@@ -157,6 +168,7 @@ public class ServerCore {
 		server.start();
 		logArea.setForeground(Color.green);
 		appendLog("SERVER IS STARTED \n", Color.green);
+
 	}
 
 	
@@ -189,13 +201,13 @@ public class ServerCore {
         return 0;
     }
 	
-	private void userConnect(int userID) {
-		server.getBroadcastOperations().sendEvent("user_status", userID, true);
-    }
-
-    private void userDisconnect(int userID) {
-        server.getBroadcastOperations().sendEvent("user_status", userID, false);
-    }
+//	private void userConnect(int userID) {
+//		server.getBroadcastOperations().sendEvent("user_status", userID, true);
+//    }
+//
+//    private void userDisconnect(int userID) {
+//        server.getBroadcastOperations().sendEvent("user_status", userID, false);
+//    }
 	
 	public void appendLog(String s, Color c) {
 		StyledDocument doc = logArea.getStyledDocument();

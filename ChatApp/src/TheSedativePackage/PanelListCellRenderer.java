@@ -42,10 +42,10 @@ public class PanelListCellRenderer implements ListCellRenderer<AccountComponent>
           // Customize the appearance of selected cells
 //  		renderer.setBackground(Color.BLUE);
 			value.setBackground(new Color(91, 150, 247));
-			setPanelForeground(value, Color.white);
+			setPanelForeground(value.getLblName(), Color.white);
 		} else {
 			value.setBackground(Color.white);
-			setPanelForeground(value, Color.black);
+			setPanelForeground(value.getLblName(), Color.black);
 		}
 		
 //		System.out.println(list.getModel().getSize());
@@ -59,15 +59,8 @@ public class PanelListCellRenderer implements ListCellRenderer<AccountComponent>
 		return renderer;
     }
     
-    private void setPanelForeground(JPanel panel, Color color) {
-    	if (panel instanceof JPanel) {
-	    	Component[] components = ((JPanel) panel).getComponents();
-	    	for (Component component : components) {
-	    		if (component instanceof JLabel) {
-	    			((JLabel) component).setForeground(color);
-	    		}
-	    	}
-    	}
+    private void setPanelForeground(JLabel label, Color color) {
+    	label.setForeground(color);
     }
     
 }

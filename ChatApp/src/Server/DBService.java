@@ -18,13 +18,17 @@ public class DBService {
 	private Connection con;
 	
 	private String INSERT_USER = "INSERT INTO users (userName, email, pass) VALUES (?, ?, ?)";
+	private String INSERT_USER_ACCOUNT = "INSERT INTO users_account(userID, username, email) VALUES (?, ?, ?)";
+	private String SAVE_TO_DB = "INSERT INTO messages(fromUserId, toUserId, msg) VALUES (?, ?, ?)";
+	
     private String CHECK_USER = "SELECT userID FROM users WHERE userName = ? LIMIT 1";
     private String CHECK_EMAIL = "SELECT userID FROM users WHERE email = ? LIMIT 1";
-    private String LOGIN = "SELECT UserID, users_account.UserName, users_account.email, imageString FROM users JOIN users_account USING (UserID) WHERE users.email=BINARY(?) AND users.pass=BINARY(?) AND users_account.status='1'";
-	private String INSERT_USER_ACCOUNT = "INSERT INTO users_account(userID, username, email) VALUES (?, ?, ?)";
-    private String SELECT_USERS = "SELECT userID, username, email, imageString FROM users_account WHERE status='1' AND UserID<>?";
-    private String SAVE_TO_DB = "INSERT INTO messages(fromUserId, toUserId, msg) VALUES (?, ?, ?)";
+    private String LOGIN = "SELECT UserID, users_account.UserName, users_account.email, imageString, status FROM users JOIN users_account USING (UserID) WHERE users.email=BINARY(?) AND users.pass=BINARY(?)";
+    private String SELECT_USERS = "SELECT userID, username, email, imageString, status FROM users_account WHERE UserID<>?";
 	private String SELECT_MESSAGE = "SELECT * FROM messages WHERE ? IN (fromUserId, toUserId) AND ? IN (fromUserId, toUserId)";
+	private String SELECT_ALL_USERS = "SELECT userID, username, email, imageString, status FROM users_account";
+	
+	private String UPDATE_STATUS = "UPDATE users_account SET status = ? WHERE userId = ?";
     
 	public DBService() {
 		this.con = DBConnection.getInstance().getConnection();
@@ -135,12 +139,25 @@ public class DBService {
             String userName = resultSet.getString(2);
             String email = resultSet.getString(3);
             String image = resultSet.getString(4);
-            data = new UserAccountData(userID, userName, email, image, true);
+            Boolean status = resultSet.getBoolean(5);
+            data = new UserAccountData(userID, userName, email, image, status);
+            
+            stmt = con.prepareStatement(UPDATE_STATUS);
+            stmt.setBoolean(1, true);
+            stmt.setInt(2, userID);
+            stmt.execute();
         }
         resultSet.close();
         stmt.close();
         return data;
     }
+	
+	public void setDisconnect(int userId) throws SQLException {
+		PreparedStatement stmt = con.prepareStatement(UPDATE_STATUS);
+        stmt.setBoolean(1, false);
+        stmt.setInt(2, userId);
+        stmt.execute();
+	}
 	
 	public List<UserAccountData> getUsers(int userReqID) throws SQLException {
 		List<UserAccountData> list = new ArrayList<>();
@@ -152,8 +169,27 @@ public class DBService {
             String userName = resultSet.getString(2);
             String email = resultSet.getString(3);
             String image = resultSet.getString(4);
-//            System.out.println(email);
-            list.add(new UserAccountData(userID, userName, email, image, false));
+            Boolean status = resultSet.getBoolean(5);
+            System.out.println(email);
+            list.add(new UserAccountData(userID, userName, email, image, status));
+        }
+        resultSet.close();
+        stmt.close();
+        return list;
+	}
+	
+	public List<UserAccountData> getAllUsers() throws SQLException {
+		List<UserAccountData> list = new ArrayList<>();
+        PreparedStatement stmt = con.prepareStatement(SELECT_ALL_USERS);
+        ResultSet resultSet = stmt.executeQuery();
+        while (resultSet.next()) {
+            int userID = resultSet.getInt(1);
+            String userName = resultSet.getString(2);
+            String email = resultSet.getString(3);
+            String image = resultSet.getString(4);
+            Boolean status = resultSet.getBoolean(5);
+            System.out.println(email);
+            list.add(new UserAccountData(userID, userName, email, image, status));
         }
         resultSet.close();
         stmt.close();
